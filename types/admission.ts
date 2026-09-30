@@ -57,6 +57,20 @@ export interface AdmissionFilterState {
   };
 }
 
+export interface AdmissionStatsProps {
+  stats: {
+    totalAdmissions: number;
+    activeAdmissions?: number;
+    certifiedAdmissions?: number;
+    inactiveAdmissions?: number;
+    confirmedAdmissions?: number;
+    pendingAdmissions?: number;
+    totalFeeCollected: number;
+    totalFeeExpected: number;
+    feeCollectionRate: number;
+  };
+}
+
 // Re-export Course and Batch types for backwards compatibility
 export * from "./course";
 export * from "./batch";

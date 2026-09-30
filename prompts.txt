@@ -599,6 +599,27 @@ Implemented dual-mode route protection across the CRM using `AuthGuard`:
 3. `components/forms/SignInForm.tsx` & `SignUpForm.tsx`:
    - Updated fallback destination redirect from `/dashboard` to `/`.
 ================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #37]
+create student dashboard page
+
+[RESPONSE #37]
+Created the Student Academic Dashboard page and component suite:
+1. `app/(admin)/student/page.tsx`:
+   - Built dedicated Student Dashboard route `/student` integrated with breadcrumbs and portal header.
+2. `components/student/`:
+   - `StudentProfileCard.tsx`: Candidate personal identity card showcasing Student ID, Registration ID, Skill India ID, Aadhaar verification, status badge, and print action.
+   - `StudentStatsCards.tsx`: 4 key performance metrics for Enrolled Program, Cohort Timings, Fee Clearance, and Attendance/Progress.
+   - `StudentSyllabusSection.tsx`: Module-by-module curriculum progress with completed/in-progress visual tracking.
+   - `StudentScheduleSection.tsx`: Weekly class schedule, instructor allocations, and classroom/lab room details.
+   - `StudentFeeBreakdown.tsx`: Program tuition fee summary, paid amounts, balance due, and printable invoice receipts.
+   - `StudentCertificatesSection.tsx`: Skill India / NSDC Qualification Pack certification card with certificate download trigger.
+   - `StudentDashboardView.tsx`: Master view with tabbed navigation (Overview, Syllabus, Schedule, Fee Receipts, Certifications) and interactive multi-student switcher.
+3. `components/layout/Sidebar.tsx`:
+   - Added "Student Portal" navigation link to the main menu.
+4. `data/authData.ts`:
+   - Added quick demo student login chip (`student@nletacrm.com` / `Student`).
+================================================================================
 
 
 

@@ -297,7 +297,7 @@ export default function SignInForm({
       </form>
 
       {/* Switch to Sign Up */}
-      <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800/80 text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+      <div className="hidden mt-6 pt-5 border-t border-gray-100 dark:border-gray-800/80 text-center text-xs sm:text-sm text-gray-500 dark:text-gray-400">
         Don&apos;t have an account yet?{" "}
         {onNavigateToSignUp ? (
           <button

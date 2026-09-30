@@ -2,20 +2,8 @@
 
 import React from "react";
 import StatCard from "@/components/ui/StatCard";
+import { AdmissionStatsProps } from "@/types/admission";
 
-interface AdmissionStatsProps {
-  stats: {
-    totalAdmissions: number;
-    activeAdmissions?: number;
-    certifiedAdmissions?: number;
-    inactiveAdmissions?: number;
-    confirmedAdmissions?: number;
-    pendingAdmissions?: number;
-    totalFeeCollected: number;
-    totalFeeExpected: number;
-    feeCollectionRate: number;
-  };
-}
 
 export default function AdmissionStats({ stats }: AdmissionStatsProps) {
   const activeCount = stats.activeAdmissions ?? stats.confirmedAdmissions ?? 0;
