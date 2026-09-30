@@ -535,6 +535,18 @@ Activated the quick action "New Lead" button in the top navigation header:
    - Converted the static button into a Next.js `Link` pointing directly to `/leads/new`.
    - Enabled instant prefetching and client-side transition to the dedicated Create Lead form page.
 ================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #33]
+Header New Lead button not working
+
+[RESPONSE #33]
+Enhanced and verified the "New Lead" quick action button in the top navigation header:
+1. `components/layout/Header.tsx`:
+   - Updated the button display from `hidden sm:inline-flex` to `inline-flex` with responsive text display (`<span className="hidden sm:inline">New Lead</span>`), ensuring it remains visible and clickable across all screen resolutions (mobile, tablet, desktop).
+   - Added `title="Capture New Lead"` and `aria-label="Capture New Lead"` attributes for accessibility.
+   - Connected directly to `/leads/new` using Next.js `Link` for client-side page routing.
+2. Verified that `/leads/new` and `LeadForm` compile cleanly and route without errors.
+================================================================================
 
 
 
