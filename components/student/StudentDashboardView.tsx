@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Admission } from "@/types/admission";
+import { StudentDashboardViewProps, StudentTabType } from "@/types/student";
 import { admissionService } from "@/services/admissionService";
 import { courseService } from "@/services/courseService";
 import { batchService } from "@/services/batchService";
@@ -13,15 +14,11 @@ import StudentScheduleSection from "./StudentScheduleSection";
 import StudentFeeBreakdown from "./StudentFeeBreakdown";
 import StudentCertificatesSection from "./StudentCertificatesSection";
 
-interface StudentDashboardViewProps {
-  customAdmission?: Admission;
-}
-
 export default function StudentDashboardView({ customAdmission }: StudentDashboardViewProps) {
   const { user } = useAuth();
   const [admissions, setAdmissions] = useState<Admission[]>([]);
   const [selectedAdmissionId, setSelectedAdmissionId] = useState<string>("");
-  const [activeTab, setActiveTab] = useState<"overview" | "syllabus" | "schedule" | "fees" | "certificates">("overview");
+  const [activeTab, setActiveTab] = useState<StudentTabType>("overview");
 
   useEffect(() => {
     const list = admissionService.getAdmissions();

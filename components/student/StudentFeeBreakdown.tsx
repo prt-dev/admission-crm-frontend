@@ -1,11 +1,7 @@
 "use client";
 
 import React from "react";
-import { Admission } from "@/types/admission";
-
-interface StudentFeeBreakdownProps {
-  admission: Admission;
-}
+import { StudentFeeBreakdownProps } from "@/types/student";
 
 export default function StudentFeeBreakdown({ admission }: StudentFeeBreakdownProps) {
   const balanceDue = (admission.totalFee || 0) - (admission.amountPaid || 0);

@@ -2,15 +2,7 @@
 
 import React from "react";
 import StatCard from "@/components/ui/StatCard";
-import { Admission } from "@/types/admission";
-import { Course } from "@/types/course";
-import { Batch } from "@/types/batch";
-
-interface StudentStatsCardsProps {
-  admission: Admission;
-  course?: Course;
-  batch?: Batch;
-}
+import { StudentStatsCardsProps } from "@/types/student";
 
 export default function StudentStatsCards({
   admission,

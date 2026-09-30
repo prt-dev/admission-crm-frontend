@@ -1,11 +1,7 @@
 "use client";
 
 import React from "react";
-import { Batch } from "@/types/batch";
-
-interface StudentScheduleSectionProps {
-  batch?: Batch;
-}
+import { StudentScheduleSectionProps } from "@/types/student";
 
 export default function StudentScheduleSection({ batch }: StudentScheduleSectionProps) {
   const scheduleSlots = [

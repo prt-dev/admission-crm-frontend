@@ -1,11 +1,7 @@
 "use client";
 
 import React from "react";
-import { Course } from "@/types/course";
-
-interface StudentSyllabusSectionProps {
-  course?: Course;
-}
+import { StudentSyllabusSectionProps } from "@/types/student";
 
 export default function StudentSyllabusSection({ course }: StudentSyllabusSectionProps) {
   const highlights: string[] =

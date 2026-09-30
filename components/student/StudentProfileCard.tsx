@@ -1,11 +1,7 @@
 "use client";
 
 import React from "react";
-import { Admission } from "@/types/admission";
-
-interface StudentProfileCardProps {
-  admission: Admission;
-}
+import { StudentProfileCardProps } from "@/types/student";
 
 export default function StudentProfileCard({ admission }: StudentProfileCardProps) {
   const getStatusBadge = (st: string) => {

@@ -1,13 +1,7 @@
 "use client";
 
 import React from "react";
-import { Admission } from "@/types/admission";
-import { Course } from "@/types/course";
-
-interface StudentCertificatesSectionProps {
-  admission: Admission;
-  course?: Course;
-}
+import { StudentCertificatesSectionProps } from "@/types/student";
 
 export default function StudentCertificatesSection({
   admission,
