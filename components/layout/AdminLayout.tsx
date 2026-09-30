@@ -17,7 +17,6 @@ function AdminLayoutInner({ children }: AdminLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // If viewing auth routes (signin / signup / login), protect them in guest mode (no auth pages open if logged in)
   const isAuthRoute =
     pathname === "/signin" ||
     pathname === "/signup" ||
