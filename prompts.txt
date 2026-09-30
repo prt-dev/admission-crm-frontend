@@ -525,6 +525,16 @@ Diagnosed and resolved pagination rendering behavior in the Batches table:
 3. `app/(admin)/batches/page.tsx`:
    - Verified that `pagination` prop is configured with `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, and `size: "md"`.
 ================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #32]
+Header New Lead button not working
+
+[RESPONSE #32]
+Activated the quick action "New Lead" button in the top navigation header:
+1. `components/layout/Header.tsx`:
+   - Converted the static button into a Next.js `Link` pointing directly to `/leads/new`.
+   - Enabled instant prefetching and client-side transition to the dedicated Create Lead form page.
+================================================================================
 
 
 

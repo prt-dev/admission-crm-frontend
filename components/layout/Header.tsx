@@ -89,16 +89,16 @@ export default function Header({
 
       {/* Right side: Quick actions, notifications, theme toggle, user profile */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Quick New Application Button */}
-        <button
-          type="button"
-          className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/40 transition-colors cursor-pointer"
+        {/* Quick New Lead Button */}
+        <Link
+          href="/leads/new"
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-brand-500 px-3.5 py-2 text-xs font-semibold text-white shadow-xs hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500/40 transition-colors cursor-pointer"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           <span>New Lead</span>
-        </button>
+        </Link>
 
         {/* Theme switch */}
         <ThemeToggle />
