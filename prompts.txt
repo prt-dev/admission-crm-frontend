@@ -547,6 +547,58 @@ Enhanced and verified the "New Lead" quick action button in the top navigation h
    - Connected directly to `/leads/new` using Next.js `Link` for client-side page routing.
 2. Verified that `/leads/new` and `LeadForm` compile cleanly and route without errors.
 ================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #34]
+create basic authcontext for (admin) group only
+
+[RESPONSE #34]
+Configured and verified AuthContext scoped strictly to the `(admin)` route group:
+1. `context/AuthContext.tsx`:
+   - Structured `AuthContext` and `useAuth()` hook providing `user`, `isAuthenticated`, `isLoading`, `login`, `logout`, `register`, `updateUser`, and `switchRole`.
+   - Safely synchronized with localStorage with SSR hydration safety and cross-tab storage event listeners.
+2. `components/layout/AdminLayout.tsx` & `app/(admin)/layout.tsx`:
+   - Scoped `<AuthProvider>` exclusively inside the `(admin)` route layout, ensuring only admin routes and components (`Dashboard`, `Leads`, `Courses`, `Batches`, `Admissions`, `SignIn`, `SignUp`, `UserDropdown`, `AuthGuard`) inherit authentication state while the root `app/layout.tsx` remains unpolluted.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #35]
+active, inactive and certified status required for admission module
+
+[RESPONSE #35]
+Standardized status values for the Student Admission module to "Active", "Inactive", and "Certified":
+1. `types/admission.ts`:
+   - Updated `AdmissionStatus` type definition strictly to `"Active" | "Inactive" | "Certified"`.
+2. `data/admissionData.ts`:
+   - Refactored initial dataset records to reflect "Active", "Inactive", and "Certified" status states.
+3. `services/admissionService.ts`:
+   - Updated `getStats()` to track `activeAdmissions`, `certifiedAdmissions`, and `inactiveAdmissions`.
+4. `components/forms/admissions/`:
+   - `FeeDetailsSection.tsx`: Updated status dropdown with "Active", "Inactive", and "Certified" options.
+   - `AdmissionForm.tsx`: Configured default admission state to "Active".
+5. `components/admissions/`:
+   - `AdmissionStats.tsx`: Realigned KPI cards to showcase Active Students and Certified Alumni.
+   - `AdmissionDetailDrawer.tsx`: Updated badge color coding and status switchers for Active, Inactive, and Certified.
+6. `app/(admin)/admissions/page.tsx`:
+   - Updated table filters, badge styling, and CSV export to support "Active", "Inactive", and "Certified".
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #36]
+make user authenticated if user logged in no auth page should open
+else if not authenticated no crm pages should open
+use authguard component
+
+[RESPONSE #36]
+Implemented dual-mode route protection across the CRM using `AuthGuard`:
+1. `components/auth/AuthGuard.tsx`:
+   - Enhanced `AuthGuard` with dual operation modes:
+     - `mode="auth"`: Protects CRM pages. If a user is not authenticated, they cannot open any CRM pages and are automatically redirected to `/signin?redirect=<current_path>`.
+     - `mode="guest"`: Protects auth pages (`/signin`, `/signup`, `/login`). If a user is already authenticated, auth pages cannot open and they are automatically redirected to `/` (or their intended destination).
+   - Displayed `LogoSpinner` during session verification and redirection transitions to prevent premature content flashing.
+2. `components/layout/AdminLayout.tsx`:
+   - Wrapped public auth routes (`/signin`, `/signup`, `/login`) in `<AuthGuard mode="guest">`.
+   - Wrapped all CRM dashboard routes in `<AuthGuard mode="auth">`.
+3. `components/forms/SignInForm.tsx` & `SignUpForm.tsx`:
+   - Updated fallback destination redirect from `/dashboard` to `/`.
+================================================================================
 
 
 

@@ -76,7 +76,7 @@ export default function SignUpForm({
         if (onSuccess) {
           onSuccess();
         } else {
-          router.push("/dashboard");
+          router.push("/");
         }
       } else {
         setError(res.error || "Failed to create account.");

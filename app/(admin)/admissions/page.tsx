@@ -140,18 +140,14 @@ export default function AdmissionsPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Confirmed":
+      case "Active":
         return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800";
-      case "Pending Verification":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 dark:border-amber-800";
-      case "Under Review":
+      case "Certified":
         return "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800";
-      case "Completed":
-        return "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-200 dark:border-purple-800";
-      case "Cancelled":
+      case "Inactive":
         return "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800";
       default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700";
     }
   };
 
@@ -411,11 +407,9 @@ export default function AdmissionsPage() {
             className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800 px-3 py-1.5 text-xs text-gray-900 dark:text-white focus:outline-none"
           >
             <option value="all">All Statuses</option>
-            <option value="Confirmed">Confirmed</option>
-            <option value="Pending Verification">Pending Verification</option>
-            <option value="Under Review">Under Review</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Certified">Certified</option>
           </select>
         </div>
 

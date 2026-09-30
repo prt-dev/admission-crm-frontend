@@ -45,9 +45,7 @@ export const authLocalClientService = {
       const rawUser = localStorage.getItem(STORAGE_KEY_USER);
 
       if (!rawUser) {
-        // Bootstrap default user if not set yet for seamless testing
-        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(defaultAuthUser));
-        return defaultAuthUser;
+        return null;
       }
 
       const parsed = JSON.parse(rawUser);

@@ -12,12 +12,7 @@ export type QualificationType =
   | "Post Graduate"
   | "Other";
 
-export type AdmissionStatus =
-  | "Confirmed"
-  | "Pending Verification"
-  | "Under Review"
-  | "Completed"
-  | "Cancelled";
+export type AdmissionStatus = "Active" | "Inactive" | "Certified";
 
 export type PaymentStatus = "Paid" | "Partial" | "Pending";
 

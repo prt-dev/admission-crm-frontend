@@ -43,7 +43,7 @@ export default function AdmissionForm({
   const [skillIndiaRegId, setSkillIndiaRegId] = useState("");
 
   const [admissionDate, setAdmissionDate] = useState("");
-  const [status, setStatus] = useState<AdmissionStatus>("Confirmed");
+  const [status, setStatus] = useState<AdmissionStatus>("Active");
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("Paid");
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [totalFee, setTotalFee] = useState<number>(0);
@@ -75,7 +75,7 @@ export default function AdmissionForm({
       setBatchCode(admissionToEdit.batchCode || "");
       setSkillIndiaRegId(admissionToEdit.skillIndiaRegId || "");
       setAdmissionDate(admissionToEdit.admissionDate || new Date().toISOString().split("T")[0]);
-      setStatus(admissionToEdit.status || "Confirmed");
+      setStatus(admissionToEdit.status || "Active");
       setPaymentStatus(admissionToEdit.paymentStatus || "Paid");
       setAmountPaid(admissionToEdit.amountPaid || 0);
       setTotalFee(admissionToEdit.totalFee || 0);
@@ -103,7 +103,7 @@ export default function AdmissionForm({
       setBatchCode(initialBatch);
       setSkillIndiaRegId(newSkillId);
       setAdmissionDate(new Date().toISOString().split("T")[0]);
-      setStatus("Confirmed");
+      setStatus("Active");
       setPaymentStatus("Paid");
       setTotalFee(matchedCourse?.totalFee || 45000);
       setAmountPaid(matchedCourse?.totalFee || 45000);

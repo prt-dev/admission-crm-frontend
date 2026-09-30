@@ -157,11 +157,10 @@ export default function CoursesPage() {
       sortable: true,
       render: (row) => (
         <span
-          className={`inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-            row.status === "Active"
+          className={`inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-full ${row.status === "Active"
               ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
               : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-          }`}
+            }`}
         >
           {row.status}
         </span>
@@ -274,17 +273,6 @@ export default function CoursesPage() {
             </svg>
           }
         />
-        <StatCard
-          title="Skill India SSCs"
-          value="4 Sectors"
-          badge={{ label: "Govt Certified", variant: "success" }}
-          subtitle="NSDC aligned qualification packs"
-          icon={
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-            </svg>
-          }
-        />
       </div>
 
       {/* Filter & View Switcher Bar */}
@@ -332,21 +320,19 @@ export default function CoursesPage() {
         <div className="flex items-center gap-1 rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
           <button
             onClick={() => setViewMode("grid")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              viewMode === "grid"
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${viewMode === "grid"
                 ? "bg-white dark:bg-gray-900 text-brand-600 shadow-xs"
                 : "text-gray-500 hover:text-gray-900"
-            }`}
+              }`}
           >
             Grid
           </button>
           <button
             onClick={() => setViewMode("table")}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              viewMode === "table"
+            className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${viewMode === "table"
                 ? "bg-white dark:bg-gray-900 text-brand-600 shadow-xs"
                 : "text-gray-500 hover:text-gray-900"
-            }`}
+              }`}
           >
             Table
           </button>
@@ -373,11 +359,10 @@ export default function CoursesPage() {
                       {course.courseCode}
                     </span>
                     <span
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                        course.status === "Active"
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${course.status === "Active"
                           ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300"
                           : "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                      }`}
+                        }`}
                     >
                       {course.status}
                     </span>

@@ -174,11 +174,9 @@ export const admissionService = {
     const batches = batchService.getBatches();
 
     const total = admissions.length;
-    const confirmed = admissions.filter((a) => a.status === "Confirmed").length;
-    const pending = admissions.filter(
-      (a) =>
-        a.status === "Pending Verification" || a.status === "Under Review"
-    ).length;
+    const active = admissions.filter((a) => a.status === "Active").length;
+    const certified = admissions.filter((a) => a.status === "Certified").length;
+    const inactive = admissions.filter((a) => a.status === "Inactive").length;
     const totalCollected = admissions.reduce(
       (acc, a) => acc + (a.amountPaid || 0),
       0
@@ -190,8 +188,12 @@ export const admissionService = {
 
     return {
       totalAdmissions: total,
-      confirmedAdmissions: confirmed,
-      pendingAdmissions: pending,
+      activeAdmissions: active,
+      certifiedAdmissions: certified,
+      inactiveAdmissions: inactive,
+      // Backward compatibility fields
+      confirmedAdmissions: active,
+      pendingAdmissions: inactive,
       totalCourses: courses.length,
       activeBatches: batches.filter(
         (b) => b.status === "Ongoing" || b.status === "Upcoming"

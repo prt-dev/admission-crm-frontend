@@ -6,8 +6,11 @@ import StatCard from "@/components/ui/StatCard";
 interface AdmissionStatsProps {
   stats: {
     totalAdmissions: number;
-    confirmedAdmissions: number;
-    pendingAdmissions: number;
+    activeAdmissions?: number;
+    certifiedAdmissions?: number;
+    inactiveAdmissions?: number;
+    confirmedAdmissions?: number;
+    pendingAdmissions?: number;
     totalFeeCollected: number;
     totalFeeExpected: number;
     feeCollectionRate: number;
@@ -15,18 +18,20 @@ interface AdmissionStatsProps {
 }
 
 export default function AdmissionStats({ stats }: AdmissionStatsProps) {
+  const activeCount = stats.activeAdmissions ?? stats.confirmedAdmissions ?? 0;
+  const certifiedCount = stats.certifiedAdmissions ?? 0;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Total Admissions */}
       <StatCard
-        title="Total Admitted Students"
+        title="Total Admissions"
         value={stats.totalAdmissions.toString()}
         badge={{
-          label: "+18% MoM",
-          variant: "success",
-          trend: "up",
+          label: "Registry Total",
+          variant: "brand",
         }}
-        subtitle="Across all active academic batches"
+        subtitle="Across all academic programs"
         icon={
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -34,15 +39,16 @@ export default function AdmissionStats({ stats }: AdmissionStatsProps) {
         }
       />
 
-      {/* Confirmed */}
+      {/* Active Students */}
       <StatCard
-        title="Confirmed Admissions"
-        value={stats.confirmedAdmissions.toString()}
+        title="Active Students"
+        value={activeCount.toString()}
         badge={{
-          label: "KYC Verified",
-          variant: "brand",
+          label: "Active Cohorts",
+          variant: "success",
+          trend: "up",
         }}
-        subtitle="Aadhaar & Skill India verified"
+        subtitle="Currently enrolled & attending"
         icon={
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -50,18 +56,18 @@ export default function AdmissionStats({ stats }: AdmissionStatsProps) {
         }
       />
 
-      {/* Pending Verification */}
+      {/* Certified Alumni */}
       <StatCard
-        title="Pending Verifications"
-        value={stats.pendingAdmissions.toString()}
+        title="Certified Alumni"
+        value={certifiedCount.toString()}
         badge={{
-          label: "Action Required",
-          variant: "warning",
+          label: "Certified",
+          variant: "brand",
         }}
-        subtitle="Awaiting documents or approval"
+        subtitle="Graduated & Skill certified"
         icon={
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
         }
       />

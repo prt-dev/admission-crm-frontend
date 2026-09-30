@@ -74,11 +74,9 @@ export default function FeeDetailsSection({
             onChange={(e) => onStatusChange(e.target.value as any)}
             className="w-full rounded-xl border border-gray-200 dark:border-gray-700 px-3.5 py-2.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none"
           >
-            <option value="Confirmed">Confirmed</option>
-            <option value="Pending Verification">Pending Verification</option>
-            <option value="Under Review">Under Review</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Certified">Certified</option>
           </select>
         </div>
 

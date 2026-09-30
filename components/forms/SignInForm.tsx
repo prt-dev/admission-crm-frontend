@@ -17,7 +17,7 @@ export default function SignInForm({
 }: SignInFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTarget = searchParams?.get("redirect") || "/dashboard";
+  const redirectTarget = searchParams?.get("redirect") || "/";
 
   const { login } = useAuth();
 
