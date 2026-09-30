@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { APP_CONFIG } from "@/config/appConfig";
 
 export const metadata: Metadata = {
   title: {
-    default: "Admission CRM - NLETA",
-    template: "%s | Admission CRM",
+    default: APP_CONFIG.defaultTitle,
+    template: `%s | ${APP_CONFIG.name}`,
   },
-  description: "National Lift Escalator Testing Agency - Admission CRM & Student Lifecycle Management Platform",
+  description: APP_CONFIG.description,
   icons: {
     icon: [
-      { url: "/images/favicon.ico" },
-      { url: "/images/logo/logo-icon.svg", type: "image/svg+xml" },
+      { url: `${APP_CONFIG.favicon}?v=nleta_v3`, type: "image/png" },
     ],
-    shortcut: "/images/favicon.ico",
-    apple: "/images/logo/nleta-logo.png",
+    shortcut: `${APP_CONFIG.favicon}?v=nleta_v3`,
+    apple: `${APP_CONFIG.logo}?v=nleta_v3`,
   },
 };
 
@@ -25,9 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/images/favicon.ico" sizes="any" />
-        <link rel="icon" href="/images/logo/logo-icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/images/logo/nleta-logo.png" />
+        <link rel="icon" type="image/png" href={`${APP_CONFIG.favicon}?v=nleta_v3`} />
+        <link rel="shortcut icon" type="image/png" href={`${APP_CONFIG.favicon}?v=nleta_v3`} />
+        <link rel="apple-touch-icon" href={`${APP_CONFIG.logo}?v=nleta_v3`} />
       </head>
       <body className="antialiased">
         {children}

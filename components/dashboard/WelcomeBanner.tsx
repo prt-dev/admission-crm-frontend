@@ -2,7 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
+import { APP_CONFIG } from "@/config/appConfig";
 
 interface WelcomeBannerProps {
   pendingVerificationsCount?: number;
@@ -18,17 +20,29 @@ export default function WelcomeBanner({
   return (
     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 p-6 sm:p-8 text-white shadow-lg">
       <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-            ✨ {sessionTitle}
-          </span>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
-            Welcome back, {user?.fullName || user?.username || "Administrator"}!
-          </h1>
-          <p className="mt-1 text-sm text-brand-100 max-w-xl">
-            Here is your admission CRM operations overview for today. You have{" "}
-            <strong className="text-white">{pendingVerificationsCount} pending candidate verifications</strong>.
-          </p>
+        <div className="flex items-start gap-4">
+          <div className="hidden sm:flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/95 p-2 shadow-md backdrop-blur-md">
+            <Image
+              src={APP_CONFIG.logo}
+              alt={`${APP_CONFIG.name} Logo`}
+              width={48}
+              height={48}
+              className="h-full w-full object-contain select-none"
+              priority
+            />
+          </div>
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-sm">
+              ✨ {sessionTitle}
+            </span>
+            <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight">
+              Welcome back, {user?.fullName || user?.username || "Administrator"}!
+            </h1>
+            <p className="mt-1 text-sm text-brand-100 max-w-xl">
+              {APP_CONFIG.description}. You have{" "}
+              <strong className="text-white">{pendingVerificationsCount} pending candidate verifications</strong>.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">

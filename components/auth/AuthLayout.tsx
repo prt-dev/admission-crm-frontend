@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ThemeToggle from "@/components/header/ThemeToggle";
+import { APP_CONFIG } from "@/config/appConfig";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -50,8 +51,8 @@ export default function AuthLayout({
               {/* Logo Emblem */}
               <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/95 p-2.5 shadow-xl ring-4 ring-white/20 backdrop-blur-md transition-transform duration-300 group-hover:scale-105 dark:bg-gray-900/90 dark:ring-white/10">
                 <Image
-                  src="/images/logo/nleta-logo.png"
-                  alt="National Lift Escalator Testing Agency"
+                  src={APP_CONFIG.logo}
+                  alt={`${APP_CONFIG.name} Logo`}
                   width={64}
                   height={64}
                   className="h-full w-full object-contain select-none"
@@ -62,10 +63,10 @@ export default function AuthLayout({
               {/* Agency Title & Subtitle */}
               <div className="mt-3 text-center">
                 <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-sm">
-                  NLETA CRM
+                  {APP_CONFIG.name}
                 </h2>
                 <p className="mt-0.5 text-xs sm:text-sm font-medium text-gray-300">
-                  National Lift Escalator Testing Agency
+                  {APP_CONFIG.portalTitle}
                 </p>
               </div>
             </Link>

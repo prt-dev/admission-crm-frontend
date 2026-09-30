@@ -172,9 +172,12 @@ export default function CoursesPage() {
       header: "Actions",
       align: "right",
       render: (row) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
-            onClick={() => handleViewDetail(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetail(row);
+            }}
             className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg cursor-pointer"
             title="View Details"
           >
@@ -184,7 +187,10 @@ export default function CoursesPage() {
             </svg>
           </button>
           <button
-            onClick={() => handleOpenEditPage(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenEditPage(row);
+            }}
             className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg cursor-pointer"
             title="Edit Course"
           >
@@ -193,7 +199,10 @@ export default function CoursesPage() {
             </svg>
           </button>
           <button
-            onClick={() => handleDeleteRequest(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteRequest(row);
+            }}
             className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
             title="Delete Course"
           >
@@ -449,11 +458,21 @@ export default function CoursesPage() {
         </div>
       ) : (
         <DataTable
-          title="Courses Table"
-          subtitle={`Total ${filteredCourses.length} courses`}
+          title="Courses Directory"
+          subtitle={`Total ${filteredCourses.length} courses registered`}
           data={filteredCourses}
           columns={columns}
-          pagination={{ pageSize: 10 }}
+          searchable
+          searchPlaceholder="Search courses by title, code, sector..."
+          pagination={{
+            pageSize: 5,
+            pageSizeOptions: [5, 10, 20, 50],
+            showEdges: true,
+            showInfo: true,
+            showTotal: true,
+            size: "md",
+          }}
+          onRowClick={(row) => handleViewDetail(row)}
         />
       )}
 

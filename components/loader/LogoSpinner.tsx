@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { APP_CONFIG } from "@/config/appConfig";
 
 export type SpinnerSize = "sm" | "md" | "lg" | "xl";
 
@@ -123,8 +124,8 @@ export default function LogoSpinner({
           style={{ animationDuration: "2s" }}
         >
           <img
-            src="/images/logo/nleta-logo.png"
-            alt="National Lift Escalator Testing Agency"
+            src={APP_CONFIG.logo}
+            alt={`${APP_CONFIG.name} Logo`}
             width={config.logoSize}
             height={config.logoSize}
             className="rounded-full object-contain select-none"

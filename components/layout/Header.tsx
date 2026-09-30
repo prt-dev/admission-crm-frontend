@@ -1,9 +1,12 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
+import Link from "next/link";
 import ThemeToggle from "@/components/header/ThemeToggle";
 import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
+import { APP_CONFIG } from "@/config/appConfig";
 
 interface HeaderProps {
   onToggleMobileSidebar: () => void;
@@ -31,6 +34,22 @@ export default function Header({
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
+
+        {/* Mobile NLETA Logo & Name */}
+        <Link href="/" className="flex items-center gap-2 lg:hidden">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-gray-800 p-1 shadow-xs border border-gray-100 dark:border-gray-700/60 overflow-hidden">
+            <Image
+              src={APP_CONFIG.logo}
+              alt={`${APP_CONFIG.name} Logo`}
+              width={32}
+              height={32}
+              className="h-full w-full object-contain"
+            />
+          </div>
+          <span className="font-bold text-sm tracking-tight text-gray-900 dark:text-white hidden sm:inline">
+            {APP_CONFIG.name}
+          </span>
+        </Link>
 
         {/* Desktop collapse toggle */}
         <button

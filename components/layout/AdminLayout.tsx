@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AuthProvider } from "@/context/AuthContext";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+import { APP_CONFIG } from "@/config/appConfig";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -52,7 +53,7 @@ function AdminLayoutInner({ children }: AdminLayoutProps) {
 
         {/* Dashboard Footer */}
         <footer className="border-t border-gray-200/60 bg-white/50 px-6 py-4 text-center text-xs text-gray-500 dark:border-gray-800/60 dark:bg-gray-900/50 dark:text-gray-400">
-          <p>© {new Date().getFullYear()} Admission CRM & ERP Platform. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {APP_CONFIG.name} — {APP_CONFIG.portalTitle}. All rights reserved.</p>
         </footer>
       </div>
     </div>

@@ -160,7 +160,7 @@ export default function Pagination({
       </div>
 
       {/* Right: Page Navigation Numbers */}
-      {totalPages > 1 && (
+      {totalPages >= 1 && (
         <div className="flex items-center gap-1">
           {/* First Page */}
           {showEdges && (

@@ -404,6 +404,127 @@ Configured official reference app logo and favicon throughout the application:
    - Updated brand logo emblem to render the official `/images/logo/nleta-logo.png` logo image with crisp containment, dark/light backdrop framing, and updated title (`NLETA CRM - Admission Portal`).
 3. Verified consistent logo rendering in `components/auth/AuthLayout.tsx` and `components/loader/LogoSpinner.tsx`.
 ================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #23]
+update fevicon with logo
+
+[RESPONSE #23]
+Updated favicon assets to directly use the official NLETA logo:
+1. Generated Next.js file-based icon metadata (`app/icon.png` & `app/apple-icon.png`) and updated `public/favicon.ico` and `public/images/favicon.ico` using the high-resolution logo `nleta-logo.png`.
+2. `app/layout.tsx`: Configured `<head>` links and `metadata.icons` to prioritize `/images/logo/nleta-logo.png` and `/images/logo/logo-icon.svg` across all browsers and devices.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #24]
+still showing old fevicon
+
+[RESPONSE #24]
+Purged cached Next.js default favicon and injected cache-busted logo favicon:
+1. Removed old default Next.js `app/favicon.ico` that was overriding custom icon definitions in the App Router pipeline.
+2. Replaced `public/favicon.ico`, `public/images/favicon.ico`, and `public/favicon.png` with the official `nleta-logo.png`.
+3. Created `app/icon.png`, `app/icon.svg`, and `app/apple-icon.png` for automatic App Router generation.
+4. `app/layout.tsx`: Added cache-busting query strings (`?v=nleta2`) to `<link rel="icon">` and `<link rel="shortcut icon">` tags to force browsers to invalidate their local favicon cache immediately.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #25]
+use nleta logo
+
+[RESPONSE #25]
+Integrated the official NLETA logo across all core layout headers and components:
+1. `components/layout/Sidebar.tsx`: Rendered the official `nleta-logo.png` image emblem in the desktop & expanded sidebar brand header.
+2. `components/layout/Header.tsx`: Integrated the NLETA logo emblem on mobile navigation headers for responsive brand consistency.
+3. `components/dashboard/WelcomeBanner.tsx`: Embedded the official NLETA logo badge in the main dashboard welcome banner alongside the organization title.
+4. `components/auth/AuthLayout.tsx` & `components/loader/LogoSpinner.tsx`: Verified uniform usage of `nleta-logo.png`.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #26]
+bro plz use nleta logo for fevicon
+
+[RESPONSE #26]
+Identified and resolved the root cause of the template SVG favicon overriding the NLETA logo:
+1. Removed `logo-icon.svg` (which was the old Next.js template icon that browsers were prioritizing over the PNG favicon).
+2. Deleted `app/icon.svg` and updated `app/icon.png`, `app/apple-icon.png`, `public/favicon.ico`, and `public/favicon.png` with `nleta-logo.png`.
+3. `app/layout.tsx`: Configured `<head>` and `metadata.icons` to strictly and exclusively load `/images/logo/nleta-logo.png?v=nleta_v3` with cache-busting parameters.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #27]
+create env with basic data
+like app name, default title, descrption, logo
+
+and use it in respective code
+
+[RESPONSE #27]
+Created centralized environment variables and integrated them throughout the codebase:
+1. Created `.env.local` and `.env.example`:
+   - `NEXT_PUBLIC_APP_NAME="NLETA CRM"`
+   - `NEXT_PUBLIC_APP_DEFAULT_TITLE="Admission CRM - NLETA"`
+   - `NEXT_PUBLIC_APP_DESCRIPTION="National Lift Escalator Testing Agency - Admission CRM & Student Lifecycle Management Platform"`
+   - `NEXT_PUBLIC_APP_PORTAL_TITLE="Admission Portal"`
+   - `NEXT_PUBLIC_APP_LOGO="/images/logo/nleta-logo.png"`
+   - `NEXT_PUBLIC_APP_FAVICON="/images/logo/nleta-logo.png"`
+   - `NEXT_PUBLIC_API_BASE_URL="http://localhost:8000/api"`
+2. Created typed centralized config module `config/appConfig.ts` with sensible defaults.
+3. Updated all components to dynamically consume `APP_CONFIG`:
+   - `app/layout.tsx`: Root document metadata, title templates, and dynamic favicon links.
+   - `app/(admin)/layout.tsx`: Admin dashboard metadata and title templates.
+   - `components/layout/Sidebar.tsx`: Brand logo, app name, and portal title.
+   - `components/layout/Header.tsx`: Mobile brand badge and logo.
+   - `components/auth/AuthLayout.tsx`: Authentication screen branding.
+   - `components/loader/LogoSpinner.tsx`: Central loading spinner logo.
+   - `components/dashboard/WelcomeBanner.tsx`: Dashboard hero banner emblem.
+   - `components/layout/AdminLayout.tsx`: Footer copyright and brand text.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #28]
+add backend base api url too
+
+[RESPONSE #28]
+Configured backend base API URLs and implemented typed HTTP API Client:
+1. `.env.local` & `.env.example`:
+   - `NEXT_PUBLIC_BACKEND_BASE_URL="http://localhost:8000"`
+   - `NEXT_PUBLIC_BACKEND_API_URL="http://localhost:8000/api"`
+   - `NEXT_PUBLIC_API_TIMEOUT="15000"`
+2. `config/appConfig.ts`:
+   - Exposed `APP_CONFIG.backendBaseUrl`, `APP_CONFIG.backendApiUrl`, and `APP_CONFIG.apiTimeout`.
+3. `services/apiClient.ts`:
+   - Created reusable API client (`apiClient`) with standard HTTP verbs (`get`, `post`, `put`, `delete`), query string serialization, auto-attached Bearer tokens, and structured error responses.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #29]
+apply pagination on all table except dashboard page table
+
+[RESPONSE #29]
+Applied uniform pagination configuration across all module tables while preserving the dashboard snapshot table:
+1. `app/(admin)/admissions/page.tsx`: Configured `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, `size: "md"`.
+2. `app/(admin)/leads/page.tsx`: Configured `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, `size: "md"`.
+3. `app/(admin)/courses/page.tsx`: Configured table view `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, `size: "md"`.
+4. `app/(admin)/batches/page.tsx`: Configured `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, `size: "md"`.
+5. `components/dashboard/RecentApplicationsTable.tsx`: Intentionally maintained without pagination for quick recent snapshot preview as requested.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #30]
+for batch table on clicking the edit button modal is opening
+
+[RESPONSE #30]
+Fixed event bubbling on table action buttons across all modules:
+1. `app/(admin)/batches/page.tsx`:
+   - Added `onClick={(e) => e.stopPropagation()}` to the actions column wrapper and individual buttons.
+   - Prevents table row click (`onRowClick`) from firing and opening the detail modal when clicking the Edit button.
+   - Edit button now directly routes to dedicated edit page `/batches/[id]/edit`.
+2. Applied the same `e.stopPropagation()` fix to `app/(admin)/courses/page.tsx` and `app/(admin)/admissions/page.tsx` for consistent navigation behavior.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #31]
+pagination is not applied on batch table
+
+[RESPONSE #31]
+Diagnosed and resolved pagination rendering behavior in the Batches table:
+1. `components/ui/Pagination.tsx`:
+   - Updated condition from `{totalPages > 1 && (` to `{totalPages >= 1 && (` so pagination page numbers, jump controls, and previous/next buttons are always rendered even when total items fit on a single page.
+2. `data/batchData.ts`:
+   - Expanded initial batch dataset to 8 realistic cohort records (`BAT-2026-WD01` through `BAT-2026-EH01`) enabling multi-page pagination across batches with default `pageSize: 5`.
+3. `app/(admin)/batches/page.tsx`:
+   - Verified that `pagination` prop is configured with `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, and `size: "md"`.
+================================================================================
 
 
 

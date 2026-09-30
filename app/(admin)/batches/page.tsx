@@ -209,9 +209,12 @@ export default function BatchesPage() {
       header: "Actions",
       align: "right",
       render: (row) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
-            onClick={() => handleViewDetail(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetail(row);
+            }}
             className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg cursor-pointer"
             title="View Details"
           >
@@ -221,7 +224,10 @@ export default function BatchesPage() {
             </svg>
           </button>
           <button
-            onClick={() => handleOpenEditPage(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenEditPage(row);
+            }}
             className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg cursor-pointer"
             title="Edit Batch"
           >
@@ -230,7 +236,10 @@ export default function BatchesPage() {
             </svg>
           </button>
           <button
-            onClick={() => handleDeleteRequest(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteRequest(row);
+            }}
             className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg cursor-pointer"
             title="Delete Batch"
           >
@@ -378,12 +387,19 @@ export default function BatchesPage() {
       {/* Main Table */}
       <DataTable
         title="Batch Directory"
-        subtitle={`Showing ${filteredBatches.length} batch cohorts`}
+        subtitle={`Showing ${filteredBatches.length} batch cohorts in directory`}
         data={filteredBatches}
         columns={columns}
         searchable
         searchPlaceholder="Search batches by code, trainer, timing..."
-        pagination={{ pageSize: 10 }}
+        pagination={{
+          pageSize: 5,
+          pageSizeOptions: [5, 10, 20, 50],
+          showEdges: true,
+          showInfo: true,
+          showTotal: true,
+          size: "md",
+        }}
         onRowClick={(row) => handleViewDetail(row)}
       />
 

@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { APP_CONFIG } from "@/config/appConfig";
 
 interface NavItem {
   label: string;
@@ -24,17 +25,6 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    label: "Admissions",
-    href: "/admissions",
-    badge: "12",
-    badgeColor: "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300",
-    icon: ({ className }) => (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-  {
     label: "Leads & Inquiries",
     href: "/leads",
     badge: "New",
@@ -46,9 +36,14 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    label: "Students",
-    href: "/students",
+    label: "Admissions",
+    href: "/admissions",
+    badge: "12",
+    badgeColor: "bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300",
     icon: ({ className }) => (
+      // <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+      //   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      // </svg>
       <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
       </svg>
@@ -64,7 +59,7 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    label: "Batches & Cohorts",
+    label: "Batches",
     href: "/batches",
     badge: "5",
     badgeColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
@@ -73,35 +68,7 @@ const navItems: NavItem[] = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
       </svg>
     ),
-  },
-  {
-    label: "Fees & Payments",
-    href: "/payments",
-    icon: ({ className }) => (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-      </svg>
-    ),
-  },
-  {
-    label: "Reports & Analytics",
-    href: "/reports",
-    icon: ({ className }) => (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
-  {
-    label: "Settings",
-    href: "/settings",
-    icon: ({ className }) => (
-      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-  },
+  }
 ];
 
 interface SidebarProps {
@@ -134,8 +101,8 @@ export default function Sidebar({
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-gray-800 p-1.5 shadow-xs border border-gray-100 dark:border-gray-700/60 overflow-hidden">
               <Image
-                src="/images/logo/nleta-logo.png"
-                alt="NLETA Logo"
+                src={APP_CONFIG.logo}
+                alt={`${APP_CONFIG.name} Logo`}
                 width={36}
                 height={36}
                 className="h-full w-full object-contain select-none"
@@ -145,10 +112,10 @@ export default function Sidebar({
             {!isCollapsed && (
               <div className="flex flex-col min-w-0 transition-opacity duration-200">
                 <span className="font-bold text-base tracking-tight text-gray-900 dark:text-white truncate">
-                  NLETA CRM
+                  {APP_CONFIG.name}
                 </span>
                 <span className="text-[10px] font-semibold tracking-wide uppercase text-brand-600 dark:text-brand-400">
-                  Admission Portal
+                  {APP_CONFIG.portalTitle}
                 </span>
               </div>
             )}
@@ -171,18 +138,16 @@ export default function Sidebar({
                 href={item.href}
                 onClick={onCloseMobile}
                 title={isCollapsed ? item.label : undefined}
-                className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-medium transition-all ${
-                  active
-                    ? "bg-brand-500 text-white shadow-sm font-semibold shadow-brand-500/25"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-                } ${isCollapsed ? "justify-center" : ""}`}
+                className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-medium transition-all ${active
+                  ? "bg-brand-500 text-white shadow-sm font-semibold shadow-brand-500/25"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                  } ${isCollapsed ? "justify-center" : ""}`}
               >
                 <item.icon
-                  className={`h-5 w-5 shrink-0 transition-colors ${
-                    active
-                      ? "text-white"
-                      : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
-                  }`}
+                  className={`h-5 w-5 shrink-0 transition-colors ${active
+                    ? "text-white"
+                    : "text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300"
+                    }`}
                 />
 
                 {!isCollapsed && (
@@ -190,11 +155,10 @@ export default function Sidebar({
                     <span className="truncate">{item.label}</span>
                     {item.badge && (
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                          active
-                            ? "bg-white/20 text-white"
-                            : item.badgeColor || "bg-gray-100 text-gray-600"
-                        }`}
+                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${active
+                          ? "bg-white/20 text-white"
+                          : item.badgeColor || "bg-gray-100 text-gray-600"
+                          }`}
                       >
                         {item.badge}
                       </span>
@@ -238,18 +202,16 @@ export default function Sidebar({
 
       {/* Mobile Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-900 shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {sidebarContent}
       </aside>
 
       {/* Desktop Sticky Sidebar */}
       <aside
-        className={`hidden lg:flex flex-col shrink-0 border-r border-gray-200/80 bg-white dark:border-gray-800 dark:bg-gray-900 transition-all duration-300 ease-in-out ${
-          isCollapsed ? "w-20" : "w-64"
-        }`}
+        className={`hidden lg:flex flex-col shrink-0 border-r border-gray-200/80 bg-white dark:border-gray-800 dark:bg-gray-900 transition-all duration-300 ease-in-out ${isCollapsed ? "w-20" : "w-64"
+          }`}
       >
         {sidebarContent}
       </aside>

@@ -274,9 +274,12 @@ export default function AdmissionsPage() {
       header: "Actions",
       align: "right",
       render: (row) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
-            onClick={() => handleViewDetail(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetail(row);
+            }}
             title="View Details"
             className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 dark:hover:bg-brand-950/50 rounded-lg transition-colors cursor-pointer"
           >
@@ -286,7 +289,10 @@ export default function AdmissionsPage() {
             </svg>
           </button>
           <button
-            onClick={() => handleOpenEditPage(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpenEditPage(row);
+            }}
             title="Edit Admission"
             className="p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/50 rounded-lg transition-colors cursor-pointer"
           >
@@ -295,7 +301,10 @@ export default function AdmissionsPage() {
             </svg>
           </button>
           <button
-            onClick={() => handleDeleteRequest(row)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteRequest(row);
+            }}
             title="Delete Record"
             className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-colors cursor-pointer"
           >

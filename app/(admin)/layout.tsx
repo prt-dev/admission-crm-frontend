@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import AdminLayout from "@/components/layout/AdminLayout";
+import { APP_CONFIG } from "@/config/appConfig";
 
 export const metadata: Metadata = {
   title: {
-    default: "Dashboard | Admission CRM",
-    template: "%s | Admission CRM",
+    default: `Dashboard | ${APP_CONFIG.name}`,
+    template: `%s | ${APP_CONFIG.name}`,
   },
-  description: "Admission CRM & Student Lifecycle Management Platform",
+  description: APP_CONFIG.description,
 };
 
 export default function Layout({
