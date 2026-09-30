@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 interface NavItem {
@@ -63,6 +64,17 @@ const navItems: NavItem[] = [
     ),
   },
   {
+    label: "Batches & Cohorts",
+    href: "/batches",
+    badge: "5",
+    badgeColor: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+    icon: ({ className }) => (
+      <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+      </svg>
+    ),
+  },
+  {
     label: "Fees & Payments",
     href: "/payments",
     icon: ({ className }) => (
@@ -120,18 +132,23 @@ export default function Sidebar({
             className="flex items-center gap-3 overflow-hidden"
             onClick={onCloseMobile}
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 text-white shadow-md">
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-              </svg>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white dark:bg-gray-800 p-1.5 shadow-xs border border-gray-100 dark:border-gray-700/60 overflow-hidden">
+              <Image
+                src="/images/logo/nleta-logo.png"
+                alt="NLETA Logo"
+                width={36}
+                height={36}
+                className="h-full w-full object-contain select-none"
+                priority
+              />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col min-w-0 transition-opacity duration-200">
                 <span className="font-bold text-base tracking-tight text-gray-900 dark:text-white truncate">
-                  Admission CRM
+                  NLETA CRM
                 </span>
-                <span className="text-[10px] font-medium tracking-wide uppercase text-brand-600 dark:text-brand-400">
-                  Admin Portal
+                <span className="text-[10px] font-semibold tracking-wide uppercase text-brand-600 dark:text-brand-400">
+                  Admission Portal
                 </span>
               </div>
             )}

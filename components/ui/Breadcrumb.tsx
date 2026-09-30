@@ -7,6 +7,7 @@ export interface BreadcrumbItem {
   label: string;
   href?: string;
   icon?: React.ReactNode;
+  active?: boolean;
 }
 
 export interface BreadcrumbProps {
@@ -41,7 +42,7 @@ export default function Breadcrumb({
     <nav aria-label="Breadcrumb" className={`flex items-center text-xs ${className}`}>
       <ol className="flex flex-wrap items-center gap-1.5 sm:gap-2">
         {allItems.map((item, index) => {
-          const isLast = index === allItems.length - 1;
+          const isLast = index === allItems.length - 1 || Boolean(item.active);
 
           return (
             <li key={index} className="flex items-center gap-1.5 sm:gap-2">

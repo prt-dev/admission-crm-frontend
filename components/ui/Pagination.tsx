@@ -2,6 +2,21 @@
 
 import React, { useMemo } from "react";
 
+export interface PaginationConfig {
+  currentPage?: number;
+  totalPages?: number;
+  totalItems?: number;
+  pageSize?: number;
+  pageSizeOptions?: number[];
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  siblingCount?: number;
+  showEdges?: boolean;
+  showInfo?: boolean;
+  showTotal?: boolean;
+  size?: "sm" | "md" | "lg";
+}
+
 export interface PaginationProps {
   currentPage: number;
   totalPages: number;
@@ -49,14 +64,14 @@ export default function Pagination({
     const firstPageIndex = 1;
     const lastPageIndex = totalPages;
 
-    // Case 1: No left dots, only right dots
+    // No left dots to show, but right dots to be shown
     if (!shouldShowLeftDots && shouldShowRightDots) {
       const leftItemCount = 3 + 2 * siblingCount;
       const leftRange = Array.from({ length: leftItemCount }, (_, idx) => idx + 1);
       return [...leftRange, "...", totalPages];
     }
 
-    // Case 2: No right dots, only left dots
+    // No right dots to show, but left dots to be shown
     if (shouldShowLeftDots && !shouldShowRightDots) {
       const rightItemCount = 3 + 2 * siblingCount;
       const rightRange = Array.from(
@@ -66,7 +81,7 @@ export default function Pagination({
       return [firstPageIndex, "...", ...rightRange];
     }
 
-    // Case 3: Both left and right dots
+    // Both left and right dots to be shown
     if (shouldShowLeftDots && shouldShowRightDots) {
       const middleRange = Array.from(
         { length: rightSiblingIndex - leftSiblingIndex + 1 },
@@ -76,46 +91,63 @@ export default function Pagination({
     }
 
     return [];
-  }, [totalPages, siblingCount, currentPage]);
+  }, [totalPages, currentPage, siblingCount]);
 
-  if (totalPages <= 1 && !totalItems && !pageSizeOptions) {
-    return null;
-  }
-
-  const startEntry = pageSize ? (currentPage - 1) * pageSize + 1 : 1;
-  const endEntry = pageSize && totalItems ? Math.min(currentPage * pageSize, totalItems) : undefined;
-
-  const sizeClasses = {
-    sm: "h-7 min-w-7 px-2 text-xs",
-    md: "h-8.5 min-w-8.5 px-2.5 text-xs font-medium",
-    lg: "h-10 min-w-10 px-3 text-sm font-medium",
+  // Size styling maps
+  const sizeStyles = {
+    sm: {
+      btn: "h-7 min-w-7 px-2 text-xs rounded-lg",
+      icon: "h-3.5 w-3.5",
+      select: "h-7 text-xs rounded-lg py-0 px-2",
+      text: "text-xs",
+    },
+    md: {
+      btn: "h-8 min-w-8 px-2.5 text-xs font-medium rounded-xl",
+      icon: "h-4 w-4",
+      select: "h-8 text-xs rounded-xl py-1 px-2.5",
+      text: "text-xs",
+    },
+    lg: {
+      btn: "h-9 min-w-9 px-3 text-sm font-medium rounded-xl",
+      icon: "h-4 w-4",
+      select: "h-9 text-sm rounded-xl py-1 px-3",
+      text: "text-sm",
+    },
   };
 
-  const buttonBase =
-    "inline-flex items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed select-none";
+  const currentSize = sizeStyles[size];
+
+  // If no pages to display
+  if (currentPage === 0 || totalPages <= 1) {
+    if (!totalItems && !pageSizeOptions) return null;
+  }
+
+  const startItem = totalItems ? (currentPage - 1) * (pageSize || 10) + 1 : 0;
+  const endItem = totalItems
+    ? Math.min(currentPage * (pageSize || 10), totalItems)
+    : 0;
 
   return (
     <div
-      className={`flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600 dark:text-gray-400 ${className}`}
-      aria-label="Pagination Navigation"
+      className={`flex flex-col sm:flex-row items-center justify-between gap-3 text-gray-600 dark:text-gray-300 ${className}`}
     >
-      {/* Left side: Info & Page Size Selector */}
-      <div className="flex items-center gap-3 flex-wrap">
+      {/* Left: Info / Page Size Selector */}
+      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
         {showInfo && totalItems !== undefined && (
-          <p className="text-xs">
-            Showing <strong className="font-semibold text-gray-900 dark:text-white">{startEntry}</strong> to{" "}
-            <strong className="font-semibold text-gray-900 dark:text-white">{endEntry ?? totalItems}</strong> of{" "}
-            <strong className="font-semibold text-gray-900 dark:text-white">{totalItems}</strong> results
-          </p>
+          <span className={`${currentSize.text} text-gray-500 dark:text-gray-400`}>
+            Showing <span className="font-semibold text-gray-900 dark:text-white">{startItem}</span> to{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">{endItem}</span> of{" "}
+            <span className="font-semibold text-gray-900 dark:text-white">{totalItems}</span> results
+          </span>
         )}
 
-        {pageSizeOptions && onPageSizeChange && pageSize && (
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-500">Rows per page:</span>
+        {pageSizeOptions && onPageSizeChange && (
+          <div className="flex items-center gap-1.5 ml-auto sm:ml-0">
+            <span className={`${currentSize.text} text-gray-400 dark:text-gray-500`}>Show</span>
             <select
               value={pageSize}
               onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:border-brand-500 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"
+              className={`border border-gray-200 bg-white font-medium text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20 ${currentSize.select}`}
             >
               {pageSizeOptions.map((opt) => (
                 <option key={opt} value={opt}>
@@ -127,101 +159,92 @@ export default function Pagination({
         )}
       </div>
 
-      {/* Right side: Page Navigation Buttons */}
-      <nav className="flex items-center gap-1">
-        {/* First page button */}
-        {showEdges && (
-          <button
-            type="button"
-            disabled={currentPage <= 1}
-            onClick={() => onPageChange(1)}
-            aria-label="Go to first page"
-            title="First Page"
-            className={`${buttonBase} ${sizeClasses[size]} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800`}
-          >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
-
-        {/* Previous page button */}
-        <button
-          type="button"
-          disabled={currentPage <= 1}
-          onClick={() => onPageChange(currentPage - 1)}
-          aria-label="Go to previous page"
-          title="Previous Page"
-          className={`${buttonBase} ${sizeClasses[size]} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800`}
-        >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        {/* Page Number Pills */}
-        {paginationRange.map((pageNumber, index) => {
-          if (typeof pageNumber === "string") {
-            return (
-              <span
-                key={`dots-${index}`}
-                className="flex h-8.5 w-8.5 items-center justify-center text-gray-400 select-none"
-              >
-                &#8230;
-              </span>
-            );
-          }
-
-          const isCurrent = pageNumber === currentPage;
-
-          return (
+      {/* Right: Page Navigation Numbers */}
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1">
+          {/* First Page */}
+          {showEdges && (
             <button
-              key={pageNumber}
-              type="button"
-              onClick={() => onPageChange(pageNumber)}
-              aria-current={isCurrent ? "page" : undefined}
-              aria-label={`Page ${pageNumber}`}
-              className={`${buttonBase} ${sizeClasses[size]} ${
-                isCurrent
-                  ? "border-brand-500 bg-brand-500 font-bold text-white shadow-xs shadow-brand-500/25"
-                  : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
-              }`}
+              onClick={() => onPageChange(1)}
+              disabled={currentPage === 1}
+              className={`inline-flex items-center justify-center border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors ${currentSize.btn}`}
+              title="First Page"
             >
-              {pageNumber}
+              <svg className={currentSize.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </svg>
             </button>
-          );
-        })}
+          )}
 
-        {/* Next page button */}
-        <button
-          type="button"
-          disabled={currentPage >= totalPages}
-          onClick={() => onPageChange(currentPage + 1)}
-          aria-label="Go to next page"
-          title="Next Page"
-          className={`${buttonBase} ${sizeClasses[size]} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800`}
-        >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-
-        {/* Last page button */}
-        {showEdges && (
+          {/* Previous Page */}
           <button
-            type="button"
-            disabled={currentPage >= totalPages}
-            onClick={() => onPageChange(totalPages)}
-            aria-label="Go to last page"
-            title="Last Page"
-            className={`${buttonBase} ${sizeClasses[size]} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800`}
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`inline-flex items-center justify-center border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors ${currentSize.btn}`}
+            title="Previous Page"
           >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            <svg className={currentSize.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-        )}
-      </nav>
+
+          {/* Page Range Items */}
+          {paginationRange.map((pageNumber, idx) => {
+            if (pageNumber === "...") {
+              return (
+                <span
+                  key={`dots-${idx}`}
+                  className={`inline-flex items-center justify-center text-gray-400 select-none ${currentSize.btn}`}
+                >
+                  &#8230;
+                </span>
+              );
+            }
+
+            const isActive = pageNumber === currentPage;
+
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => onPageChange(Number(pageNumber))}
+                className={`inline-flex items-center justify-center transition-all ${currentSize.btn} ${
+                  isActive
+                    ? "bg-brand-500 text-white font-semibold shadow-xs shadow-brand-500/30 dark:bg-brand-500 cursor-default"
+                    : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            );
+          })}
+
+          {/* Next Page */}
+          <button
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`inline-flex items-center justify-center border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors ${currentSize.btn}`}
+            title="Next Page"
+          >
+            <svg className={currentSize.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          {/* Last Page */}
+          {showEdges && (
+            <button
+              onClick={() => onPageChange(totalPages)}
+              disabled={currentPage === totalPages}
+              className={`inline-flex items-center justify-center border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white transition-colors ${currentSize.btn}`}
+              title="Last Page"
+            >
+              <svg className={currentSize.icon} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

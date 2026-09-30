@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Pagination, { PaginationProps } from "./Pagination";
+import Pagination, { PaginationConfig } from "./Pagination";
 
 export interface ColumnDef<T> {
   key: string;
@@ -11,9 +11,6 @@ export interface ColumnDef<T> {
   width?: string;
   sortable?: boolean;
 }
-
-export interface PaginationConfig
-  extends Omit<PaginationProps, "className"> { }
 
 export interface DataTableProps<T> {
   columns: ColumnDef<T>[];
@@ -51,6 +48,10 @@ export default function DataTable<T extends Record<string, any>>({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  // Client-side pagination state
+  const [clientPage, setClientPage] = useState(1);
+  const [clientPageSize, setClientPageSize] = useState(pagination?.pageSize || 10);
 
   // Client-side search filtering
   const filteredData = useMemo(() => {
@@ -90,6 +91,18 @@ export default function DataTable<T extends Record<string, any>>({
         : String(bVal).localeCompare(String(aVal));
     });
   }, [filteredData, sortColumn, sortDirection]);
+
+  // Pagination calculations
+  const pageSize = pagination?.pageSize || clientPageSize;
+  const currentPage = pagination?.currentPage || clientPage;
+  const totalPages =
+    pagination?.totalPages || Math.max(1, Math.ceil(sortedData.length / pageSize));
+
+  const displayData = useMemo(() => {
+    if (!pagination) return sortedData;
+    const start = (currentPage - 1) * pageSize;
+    return sortedData.slice(start, start + pageSize);
+  }, [sortedData, pagination, currentPage, pageSize]);
 
   const handleSort = (key: string) => {
     if (sortColumn === key) {
@@ -152,45 +165,46 @@ export default function DataTable<T extends Record<string, any>>({
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setClientPage(1);
+                  }}
                   placeholder={searchPlaceholder}
                   className="rounded-xl border border-gray-200 bg-gray-50/70 py-1.5 pl-8 pr-3 text-xs text-gray-800 placeholder-gray-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-800 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500"
                 />
               </div>
             )}
 
-            {headerActions}
+            {headerActions && <div>{headerActions}</div>}
           </div>
         </div>
       )}
 
-      {/* Table Content */}
+      {/* Table element */}
       <div className="overflow-x-auto">
-        <table className="w-full text-xs text-left">
-          <thead>
-            <tr className="border-b border-gray-100 bg-gray-50/50 text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:border-gray-800 dark:bg-gray-800/30">
+        <table className="w-full text-left text-xs text-gray-600 dark:text-gray-300">
+          <thead className="bg-gray-50/80 text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:bg-gray-800/50 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800">
+            <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
+                  className={`py-3.5 px-4 font-semibold ${alignStyles[col.align || "left"]}`}
                   style={{ width: col.width }}
-                  className={`py-3 px-4 ${alignStyles[col.align || "left"]}`}
                 >
                   {col.sortable ? (
                     <button
                       type="button"
                       onClick={() => handleSort(col.key)}
-                      className="inline-flex items-center gap-1 group font-semibold uppercase hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
+                      className="inline-flex items-center gap-1 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
                     >
                       <span>{col.header}</span>
-                      <span className="flex flex-col">
+                      <span className="flex flex-col text-[8px] text-gray-400">
                         <svg
-                          className={`h-3 w-3 ${sortColumn === col.key
-                            ? "text-brand-600 dark:text-brand-400"
-                            : "text-gray-300 group-hover:text-gray-500"
-                            } ${sortColumn === col.key && sortDirection === "desc"
-                              ? "rotate-180"
+                          className={`h-3 w-3 ${
+                            sortColumn === col.key && sortDirection === "asc"
+                              ? "text-brand-600 dark:text-brand-400 font-bold"
                               : ""
-                            }`}
+                          }`}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -223,7 +237,7 @@ export default function DataTable<T extends Record<string, any>>({
                   ))}
                 </tr>
               ))
-            ) : sortedData.length === 0 ? (
+            ) : displayData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length}
@@ -248,7 +262,7 @@ export default function DataTable<T extends Record<string, any>>({
                 </td>
               </tr>
             ) : (
-              sortedData.map((row, index) => {
+              displayData.map((row, index) => {
                 const key = keyExtractor
                   ? keyExtractor(row, index)
                   : (row.id as string | number) || index;
@@ -257,10 +271,11 @@ export default function DataTable<T extends Record<string, any>>({
                   <tr
                     key={key}
                     onClick={() => onRowClick?.(row)}
-                    className={`transition-colors ${onRowClick
-                      ? "cursor-pointer hover:bg-gray-50/80 dark:hover:bg-gray-800/50"
-                      : "hover:bg-gray-50/60 dark:hover:bg-gray-800/40"
-                      }`}
+                    className={`transition-colors ${
+                      onRowClick
+                        ? "cursor-pointer hover:bg-gray-50/80 dark:hover:bg-gray-800/50"
+                        : "hover:bg-gray-50/60 dark:hover:bg-gray-800/40"
+                    }`}
                   >
                     {columns.map((col) => (
                       <td
@@ -283,7 +298,31 @@ export default function DataTable<T extends Record<string, any>>({
       {/* Pagination Footer */}
       {pagination && (
         <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-800">
-          <Pagination {...pagination} />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={pagination.totalItems || sortedData.length}
+            pageSize={pageSize}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageChange={(page) => {
+              if (pagination.onPageChange) {
+                pagination.onPageChange(page);
+              } else {
+                setClientPage(page);
+              }
+            }}
+            onPageSizeChange={(size) => {
+              if (pagination.onPageSizeChange) {
+                pagination.onPageSizeChange(size);
+              } else {
+                setClientPageSize(size);
+                setClientPage(1);
+              }
+            }}
+            showEdges={pagination.showEdges}
+            showInfo={pagination.showInfo ?? pagination.showTotal ?? true}
+            size={pagination.size || "sm"}
+          />
         </div>
       )}
     </div>

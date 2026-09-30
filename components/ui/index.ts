@@ -8,7 +8,10 @@ export { default as Button } from "./Button";
 export type { ButtonProps, ButtonVariant, ButtonSize } from "./Button";
 
 export { default as DataTable } from "./DataTable";
-export type { DataTableProps, ColumnDef, PaginationConfig } from "./DataTable";
+export type { DataTableProps, ColumnDef } from "./DataTable";
 
 export { default as Pagination } from "./Pagination";
-export type { PaginationProps } from "./Pagination";
+export type { PaginationProps, PaginationConfig } from "./Pagination";
+
+export { default as ConfirmModal } from "./ConfirmModal";
+export type { ConfirmModalProps } from "./ConfirmModal";

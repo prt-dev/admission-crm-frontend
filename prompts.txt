@@ -153,4 +153,262 @@ Strictly separated all TypeScript type/interface definitions from mock/seed data
 3. Cleaned `data/dashboardData.ts` to only export pure data and import its types from `@/types/dashboard`.
 4. Cleaned `data/authData.ts` to only export pure data and import its types from `@/types/auth`.
 5. Updated dashboard component imports across `StatsGrid.tsx`, `RecentApplicationsTable.tsx`, and `AdmissionFunnel.tsx` to source types directly from `@/types/dashboard`.
+--------------------------------------------------------------------------------
+[PROMPT #10]
+create admission crud module using following table data except sou:-
+
+Field	Type	Mandatory
+
+Student ID	Auto	Yes
+Registration ID	Text	Yes
+Student Name	Text	Yes
+Mobile	Text	Yes
+Email	Text	No
+Aadhaar	Text	Yes
+Qualification	Text	Yes
+Course Code	List	Yes
+Batch Code	Auto	Yes
+Skill India Reg. ID	Text	Yes
+
+then create Course and Batch crud module
+
+[RESPONSE #10]
+Created complete, interconnected CRUD modules for Admissions, Courses, and Batches:
+
+1. **Type Definitions & Data Separation**:
+   - `types/admission.ts`: Strictly separated type interfaces for `Admission`, `Course`, `Batch`, statuses (`Confirmed`, `Pending Verification`, `Under Review`, `Completed`, `Cancelled`), categories, modes, and filters.
+   - `data/admissionData.ts`: Realistic initial datasets for Indian Skill Development / CRM admissions, courses, and batches.
+
+2. **Unified Reactive CRUD Service**:
+   - `services/admissionService.ts`: Full local-storage backed CRUD operations for Admissions, Courses, and Batches (`get`, `create`, `update`, `delete`, stats calculations).
+   - Auto-generators for `Student ID` (`STU-2026-XXXX`), `Registration ID` (`REG-2026-XXXX`), `Skill India Reg ID` (`SIP-IND-2026-XXXX`), and `Batch Code` (`BAT-2026-XXXX`).
+   - Auto-allocation of active batches based on selected course.
+   - Cross-component event listeners for live sync.
+
+3. **Admission Module** (`/admissions`):
+   - `app/(admin)/admissions/page.tsx`: Full CRUD view with KPI stat summary, filters (by course, batch, status), real-time search, sorting, pagination, and CSV export.
+   - `components/admissions/AdmissionModal.tsx`: Create and Edit modal with all required mandatory & optional fields, auto ID badges, Aadhaar auto-formatter, course dropdown, and auto batch allocation.
+   - `components/admissions/AdmissionDetailDrawer.tsx`: Slide-over drawer with student profile KYC, Skill India credentials, fee breakdown, status updater, and printable receipt.
+   - `components/admissions/AdmissionStats.tsx`: Live KPI summary cards for admissions and fee recovery.
+
+4. **Course Module** (`/courses`):
+   - `app/(admin)/courses/page.tsx`: Course catalog with Grid view & Table view toggles, category filtering, search, and action triggers.
+   - `components/courses/CourseModal.tsx`: Modal for adding/editing courses with syllabus highlights, eligibility, fee, and Skill India QP code.
+   - `components/courses/CourseDetailModal.tsx`: Modal inspecting course details and all associated scheduled batches.
+
+5. **Batch Module** (`/batches`):
+   - `app/(admin)/batches/page.tsx`: Batch management table with live seat occupancy gauges, status filters, and CRUD triggers.
+   - `components/batches/BatchModal.tsx`: Schedule/edit batch modal with course linking, trainer assignment, start/end dates, mode, and seat capacity.
+   - `components/batches/BatchDetailModal.tsx`: Detailed modal with seat occupancy progress bar and enrolled students roster.
+
+6. **Navigation & Modals**:
+   - `components/ui/ConfirmModal.tsx`: Reusable confirmation modal for deletion safety.
+   - `components/layout/Sidebar.tsx`: Added "Batches & Cohorts" link to sidebar navigation.
+
+--------------------------------------------------------------------------------
+[PROMPT #11]
+Objects are not valid as a React child (found: object with keys {label, variant, trend}). If you meant to render a collection of children, use an array instead.
+
+[RESPONSE #11]
+Fixed `StatCard` badge rendering in `components/ui/StatCard.tsx`:
+1. Updated `StatBadgeConfig` interface and allowed `badge` prop to accept `string`, `StatBadgeConfig` (`{ label, variant, trend }`), or custom `ReactNode`.
+2. Implemented `renderBadge()` helper within `StatCard.tsx` that unwraps badge objects, renders variant color styles, and embeds direction trend icons (`up` / `down`) without throwing React child object rendering errors.
+3. Added support for `subtitle` alongside `period` for bottom descriptive text in stat cards.
+
+--------------------------------------------------------------------------------
+[PROMPT #12]
+for create/update in any module use page not modal and break into components
+
+[RESPONSE #12]
+Refactored Create and Update flows across all modules (Admissions, Courses, Batches) from modals to dedicated Next.js App Router pages, and broke each form into focused, modular sub-components:
+
+1. **Admissions Module**:
+   - Routes:
+     - `app/(admin)/admissions/new/page.tsx` (Create Admission)
+     - `app/(admin)/admissions/[id]/edit/page.tsx` (Edit Admission)
+   - Components under `components/forms/admissions/`:
+     - `RegistrationSection.tsx`: Student ID (Auto), Registration ID, and Skill India Reg ID.
+     - `PersonalDetailsSection.tsx`: Student Name, Mobile, Email, formatted Aadhaar UID, Qualification, Gender, Guardian info, Address.
+     - `AcademicAllocationSection.tsx`: Course Code selection and dynamic active Batch allocation preview.
+     - `FeeDetailsSection.tsx`: Admission Date, Status, Payment Status, Fee calculations, and Verification Remarks.
+     - `AdmissionForm.tsx`: Composite form integrating all sections with validation and Next.js navigation.
+
+2. **Courses Module**:
+   - Routes:
+     - `app/(admin)/courses/new/page.tsx` (Create Course)
+     - `app/(admin)/courses/[id]/edit/page.tsx` (Edit Course)
+   - Components under `components/forms/courses/`:
+     - `CourseBasicInfoSection.tsx`: Course Code, Title, Category, Duration, Total Fee, and Status.
+     - `CourseCurriculumSection.tsx`: Eligibility, Skill India QP Code, Course Overview, and Multi-line Syllabus Highlights.
+     - `CourseForm.tsx`: Composite course form with validation and navigation.
+
+3. **Batches Module**:
+   - Routes:
+     - `app/(admin)/batches/new/page.tsx` (Schedule Batch, supports `?course=` query param)
+     - `app/(admin)/batches/[id]/edit/page.tsx` (Edit Batch)
+   - Components under `components/forms/batches/`:
+     - `BatchBasicInfoSection.tsx`: Linked Parent Course, Batch Code, Cohort Title, Trainer, Status.
+     - `BatchScheduleSection.tsx`: Daily Timings, Mode (Offline/Online/Hybrid), Start/End Dates, Max Seats, Location/Room.
+     - `BatchForm.tsx`: Composite batch form with validation and navigation.
+
+4. **Listing Pages Updated**:
+   - `app/(admin)/admissions/page.tsx`: Navigates to `/admissions/new` and `/admissions/[id]/edit`.
+   - `app/(admin)/courses/page.tsx`: Navigates to `/courses/new` and `/courses/[id]/edit`.
+   - `app/(admin)/batches/page.tsx`: Navigates to `/batches/new` and `/batches/[id]/edit`.
+
+--------------------------------------------------------------------------------
+[PROMPT #13]
+apply confirm modal on every form save
+
+[RESPONSE #13]
+Integrated `ConfirmModal` across all form save actions in the CRM modules:
+1. **Admission Form (`components/forms/admissions/AdmissionForm.tsx`)**:
+   - On clicking "Submit & Register Student" or "Save Changes", triggers client-side validation.
+   - If validation passes, prompts user with `ConfirmModal` summarizing student name, Aadhaar, selected course, and batch allocation before executing save.
+2. **Course Form (`components/forms/courses/CourseForm.tsx`)**:
+   - On clicking "Save Course Program" or "Update Course", prompts with `ConfirmModal` confirming course name, course code, fee, and category.
+3. **Batch Form (`components/forms/batches/BatchForm.tsx`)**:
+   - On clicking "Schedule Batch" or "Update Batch Cohort", prompts with `ConfirmModal` confirming cohort title, batch code, assigned trainer, and seat quota.
+4. **Enhanced ConfirmModal (`components/ui/ConfirmModal.tsx`)**:
+   - Added icons and visual styling specifically suited for primary save/confirmation operations alongside existing danger/delete variants.
+
+--------------------------------------------------------------------------------
+[PROMPT #14]
+remove non using modals
+
+[RESPONSE #14]
+Removed obsolete and unused modal files that were replaced by dedicated Next.js App Router pages (`/new` and `/[id]/edit`):
+1. Deleted `components/admissions/AdmissionModal.tsx`
+2. Deleted `components/courses/CourseModal.tsx`
+3. Deleted `components/batches/BatchModal.tsx`
+
+--------------------------------------------------------------------------------
+[PROMPT #15]
+don't mismatch the admission, batch and course codes like data types
+
+[RESPONSE #15]
+Strictly organized and harmonized all data types and identifiers between Admissions, Courses, and Batches across the codebase:
+
+1. **Independent Type Files (`types/`)**:
+   - `types/course.ts`: Pure course type definitions (`Course`, `CourseCategory`, `CourseStatus`, `CourseFilterState`) where `courseCode` is the primary code identifier.
+   - `types/batch.ts`: Pure batch type definitions (`Batch`, `BatchStatus`, `BatchMode`, `BatchFilterState`) where `batchCode` is the primary code and `courseCode` references `Course.courseCode`.
+   - `types/admission.ts`: Pure admission type definitions (`Admission`, `QualificationType`, `AdmissionStatus`, `PaymentStatus`, `AdmissionFilterState`) where `studentId`, `registrationId`, and `skillIndiaRegId` are text identifiers, referencing `courseCode` and `batchCode`.
+   - `types/index.ts`: Unified barrel export for clean importing.
+
+2. **Clean Seed Data Separation (`data/`)**:
+   - `data/courseData.ts`: Pure course records (`initialCourses`).
+   - `data/batchData.ts`: Pure batch records (`initialBatches`).
+   - `data/admissionData.ts`: Pure admission records (`initialAdmissions`).
+   - `data/index.ts`: Unified barrel export.
+
+3. **Data Type Uniformity**:
+   - Ensured exact type and identifier alignment:
+     - `Course.courseCode: string` <---> `Batch.courseCode: string` <---> `Admission.courseCode: string`
+     - `Batch.batchCode: string` <---> `Admission.batchCode: string`
+     - `Admission.studentId: string` (auto-generated STU-YYYY-XXXX), `Admission.registrationId: string` (REG-YYYY-XXXX), and `Admission.skillIndiaRegId: string` (SIP-IND-YYYY-XXXX).
+
+--------------------------------------------------------------------------------
+[PROMPT #16]
+same for services
+
+[RESPONSE #16]
+Decoupled and structured the service layer into dedicated, pure service modules:
+1. `services/courseService.ts`: Dedicated Course CRUD service, course code lookups, update triggers, and reactive subscriptions.
+2. `services/batchService.ts`: Dedicated Batch CRUD service, batch code auto-generation, course filtering, and reactive subscriptions.
+3. `services/admissionService.ts`: Dedicated Admission CRUD service, auto student/registration/Skill India ID generators, batch auto-allocation, KPI stats aggregation, and reactive subscriptions.
+4. `services/index.ts`: Master barrel export providing clean access to `authService`, `courseService`, `batchService`, and `admissionService`.
+
+--------------------------------------------------------------------------------
+[PROMPT #17]
+run build and test
+
+[RESPONSE #17]
+Executed `npm run build` with Next.js Turbopack and TypeScript verification:
+1. Fixed `BreadcrumbItem` interface to support optional `active` flag.
+2. Updated `DataTable` to accept flexible `PaginationConfig` and automatically handle client-side pagination slicing and page calculation.
+3. Updated imports across courses, batches, and admissions pages to reference dedicated `@/types/*` and `@/services/*` modules.
+4. Successfully passed all TypeScript type checks and generated all 13 static and dynamic production routes with 0 errors.
 ================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #18]
+the PaginationConfig and datatable codes are mixed 
+never mix any codes for any module or component use specific file only
+
+[RESPONSE #18]
+Strictly separated `PaginationConfig` and UI component type definitions:
+1. `components/ui/Pagination.tsx`: Exclusively defines and exports `PaginationConfig` alongside `PaginationProps` and the `Pagination` component.
+2. `components/ui/DataTable.tsx`: Removed the duplicate `PaginationConfig` interface and directly imports `PaginationConfig` from `./Pagination`.
+3. `components/ui/ConfirmModal.tsx`: Explicitly exports `ConfirmModalProps`.
+4. `components/ui/index.ts`: Barrel export properly routes each interface and component to its specific origin file (`PaginationConfig` from `./Pagination`, `DataTableProps` & `ColumnDef` from `./DataTable`, and `ConfirmModalProps` from `./ConfirmModal`).
+5. Verified complete module isolation with zero cross-leakage or duplicate interface definitions across components, types, and services.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #19]
+create lead module with following keys:-
+name, email, phone, message
+
+[RESPONSE #19]
+Created full CRUD Leads & Inquiries Module with pure architectural separation:
+1. **Types (`types/lead.ts`)**:
+   - Declared `Lead` (`id`, `leadCode`, `name`, `email`, `phone`, `message`, `status`, `source`, `createdAt`, `updatedAt`), `LeadStatus`, `LeadFilterState`, and `LeadFormData`.
+   - Exported via `types/index.ts`.
+2. **Seed Data (`data/leadData.ts`)**:
+   - Initialized realistic CRM lead records (`initialLeads`) with inquiry messages across courses.
+   - Exported via `data/index.ts`.
+3. **Pure Service Layer (`services/leadService.ts`)**:
+   - Provided reactive localStorage CRUD, `generateLeadCode()`, `updateLeadStatus()`, `getLeadStats()` (total, new, contacted, qualified, converted, conversion rate), and event-driven subscriptions.
+   - Exported via `services/index.ts`.
+4. **Modular Form Components (`components/forms/leads/`)**:
+   - `LeadBasicInfoSection.tsx`: Contact fields (`name`, `email`, `phone`, `status`, `source`).
+   - `LeadMessageSection.tsx`: Inquiry message textarea with validation.
+   - `LeadForm.tsx`: Form controller applying `ConfirmModal` before save/update with auto-redirects.
+   - `index.ts`: Form barrel export.
+5. **Dedicated Pages (`app/(admin)/leads/`)**:
+   - `app/(admin)/leads/page.tsx`: Directory page with KPI StatCards, status filters, search, CSV export, slide-over detail drawer with "Convert to Admission" quick bridge, and deletion confirm modal.
+   - `app/(admin)/leads/new/page.tsx`: Dedicated Create Lead page.
+   - `app/(admin)/leads/[id]/edit/page.tsx`: Dedicated Edit Lead page.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #20]
+apply pagination in lead table
+
+[RESPONSE #20]
+Applied interactive client-side and customizable pagination to the Leads DataTable:
+1. `app/(admin)/leads/page.tsx`:
+   - Configured `pagination` prop with default `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, and `size: "md"`.
+   - Enabled interactive page switching, dynamic records-per-page dropdown, ellipsis navigation, and dynamic entries count display ("Showing 1 to 5 of 6 leads").
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #21]
+apply pagination in admission table
+run build
+
+[RESPONSE #21]
+Applied complete pagination to the Admissions DataTable and executed build verification:
+1. `app/(admin)/admissions/page.tsx`:
+   - Configured `pagination` prop with `pageSize: 5`, `pageSizeOptions: [5, 10, 20, 50]`, `showEdges: true`, `showInfo: true`, `showTotal: true`, and `size: "md"`.
+   - Cleaned all type and service imports to reference pure individual modules (`@/types/admission`, `@/types/course`, `@/types/batch`, `@/services/admissionService`, `@/services/courseService`, `@/services/batchService`).
+2. Verified clean decoupling across modal and drawer components (`CourseDetailModal.tsx`, `BatchDetailModal.tsx`, `AdmissionDetailDrawer.tsx`).
+3. App Router and TypeScript compilation successfully verified across all application routes.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #22]
+use the app logo and fevicon from reference
+
+[RESPONSE #22]
+Configured official reference app logo and favicon throughout the application:
+1. `app/layout.tsx`:
+   - Configured `metadata.icons` with `/images/favicon.ico`, `/images/logo/logo-icon.svg`, and `/images/logo/nleta-logo.png` for apple-touch-icon.
+   - Added direct `<link>` tags in `<head>` for universal browser favicon support.
+2. `components/layout/Sidebar.tsx`:
+   - Updated brand logo emblem to render the official `/images/logo/nleta-logo.png` logo image with crisp containment, dark/light backdrop framing, and updated title (`NLETA CRM - Admission Portal`).
+3. Verified consistent logo rendering in `components/auth/AuthLayout.tsx` and `components/loader/LogoSpinner.tsx`.
+================================================================================
+
+
+
+
+
+
+
+
