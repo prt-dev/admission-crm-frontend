@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import Pagination, { PaginationConfig } from "./Pagination";
+import LogoSpinner from "@/components/loader/LogoSpinner";
 
 export interface ColumnDef<T> {
   key: string;
@@ -228,15 +229,18 @@ export default function DataTable<T extends Record<string, any>>({
 
           <tbody className="divide-y divide-gray-50 dark:divide-gray-800/60">
             {isLoading ? (
-              Array.from({ length: 4 }).map((_, idx) => (
-                <tr key={idx} className="animate-pulse">
-                  {columns.map((col) => (
-                    <td key={col.key} className="py-4 px-4">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-md w-3/4" />
-                    </td>
-                  ))}
-                </tr>
-              ))
+              <tr>
+                <td
+                  colSpan={columns.length}
+                  className="py-14 text-center"
+                >
+                  <LogoSpinner
+                    size="md"
+                    label="Loading data..."
+                    sublabel="Please wait while records are fetched"
+                  />
+                </td>
+              </tr>
             ) : displayData.length === 0 ? (
               <tr>
                 <td

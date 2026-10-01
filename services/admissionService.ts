@@ -1,9 +1,13 @@
 import { Admission } from "@/types/admission";
 import { initialAdmissions } from "@/data/admissionData";
+import { initialCourses } from "@/data/courseData";
+import { initialBatches } from "@/data/batchData";
 import { courseService } from "./courseService";
 import { batchService } from "./batchService";
+import { courseCache } from "./courseCache";
+import { batchCache } from "./batchCache";
 
-const STORAGE_KEY = "crm_admissions_v1";
+const STORAGE_KEY = "crm_admissions_v3";
 export const CRM_ADMISSION_CHANGED_EVENT = "crm_admission_changed";
 
 const isBrowser = typeof window !== "undefined";
@@ -34,24 +38,21 @@ export const admissionService = {
   },
 
   getAdmissionById: function (id: string): Admission | undefined {
-    const list = this.getAdmissions();
-    return list.find((a) => a.id === id || a.studentId === id);
+    const admissions = this.getAdmissions();
+    return admissions.find((a) => a.id === id || a.studentId === id);
   },
 
-  // Auto generation helpers
   generateNextStudentId: function (): string {
     const currentYear = new Date().getFullYear();
     const admissions = this.getAdmissions();
-    const prefix = `STU-${currentYear}-`;
-    const matching = admissions.filter((a) => a.studentId?.startsWith(prefix));
-    const nextSeq = (matching.length + 1).toString().padStart(4, "0");
-    return `${prefix}${nextSeq}`;
+    const base = 1001 + admissions.length;
+    return `STU-${currentYear}-${base}`;
   },
 
   generateNextRegistrationId: function (): string {
     const currentYear = new Date().getFullYear();
     const admissions = this.getAdmissions();
-    const base = 7890 + admissions.length;
+    const base = 2001 + admissions.length;
     return `REG-${currentYear}-${base}`;
   },
 
@@ -63,25 +64,40 @@ export const admissionService = {
   },
 
   getAutoBatchForCourse: function (courseCode: string): string {
-    const batches = batchService.getBatchesByCourse(courseCode);
-    if (batches.length === 0) {
+    const batches = batchCache.getValidCache() || initialBatches;
+    const cleanCode = (courseCode || "").trim().toLowerCase();
+    const matchingBatches = batches.filter(
+      (b) =>
+        (b.code || b.batchCode || "").toLowerCase() === cleanCode ||
+        (b.courseCode && b.courseCode.toLowerCase() === cleanCode) ||
+        (b.courseCodes && b.courseCodes.some((c) => c.toLowerCase() === cleanCode))
+    );
+
+    if (matchingBatches.length === 0) {
       return batchService.generateNextBatchCode(courseCode);
     }
-    const available = batches.find(
+    const available = matchingBatches.find(
       (b) =>
-        (b.status === "Upcoming" || b.status === "Ongoing") &&
-        b.enrolledSeats < b.maxSeats
+        (b.status === 1 || b.status === 2 || b.status === "Upcoming" || b.status === "Ongoing") &&
+        (b.enrolledSeats || 0) < (b.capacity || b.maxSeats || 30)
     );
-    if (available) return available.batchCode;
-    return batches[0].batchCode;
+    if (available) return (available.code || available.batchCode || "");
+    return (matchingBatches[0].code || matchingBatches[0].batchCode || "");
   },
 
   createAdmission: function (
     admissionData: Omit<Admission, "id" | "createdAt" | "updatedAt">
   ): Admission {
     const admissions = this.getAdmissions();
-    const course = courseService.getCourseByCode(admissionData.courseCode);
-    const batch = batchService.getBatchByCode(admissionData.batchCode);
+    const courses = courseCache.getValidCache() || initialCourses;
+    const batches = batchCache.getValidCache() || initialBatches;
+
+    const course = courses.find(
+      (c) => (c.code || c.courseCode || "").toLowerCase() === (admissionData.courseCode || "").toLowerCase()
+    );
+    const batch = batches.find(
+      (b) => (b.code || b.batchCode || "").toLowerCase() === (admissionData.batchCode || "").toLowerCase()
+    );
 
     const newAdmission: Admission = {
       ...admissionData,
@@ -91,9 +107,9 @@ export const admissionService = {
         admissionData.registrationId || this.generateNextRegistrationId(),
       skillIndiaRegId:
         admissionData.skillIndiaRegId || this.generateNextSkillIndiaId(),
-      courseName: course?.courseName || admissionData.courseName,
-      batchName: batch?.batchName || admissionData.batchName,
-      totalFee: admissionData.totalFee || course?.totalFee || 0,
+      courseName: course?.name || course?.courseName || admissionData.courseName,
+      batchName: batch?.name || batch?.batchName || admissionData.batchName,
+      totalFee: admissionData.totalFee || course?.fee || course?.totalFee || 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -121,14 +137,16 @@ export const admissionService = {
 
     let courseName = updates.courseName || admissions[index].courseName;
     if (updates.courseCode && updates.courseCode !== admissions[index].courseCode) {
-      const course = courseService.getCourseByCode(updates.courseCode);
-      if (course) courseName = course.courseName;
+      const courses = courseCache.getValidCache() || initialCourses;
+      const course = courses.find((c) => (c.code || c.courseCode || "").toLowerCase() === (updates.courseCode || "").toLowerCase());
+      if (course) courseName = course.name || course.courseName || courseName;
     }
 
     let batchName = updates.batchName || admissions[index].batchName;
     if (updates.batchCode && updates.batchCode !== admissions[index].batchCode) {
-      const batch = batchService.getBatchByCode(updates.batchCode);
-      if (batch) batchName = batch.batchName;
+      const batches = batchCache.getValidCache() || initialBatches;
+      const batch = batches.find((b) => (b.code || b.batchCode || "").toLowerCase() === (updates.batchCode || "").toLowerCase());
+      if (batch) batchName = batch.name || batch.batchName || batchName;
     }
 
     const updatedAdmission: Admission = {
@@ -156,10 +174,11 @@ export const admissionService = {
     if (isBrowser) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
       if (target?.batchCode) {
-        const batch = batchService.getBatchByCode(target.batchCode);
-        if (batch && batch.enrolledSeats > 0) {
+        const batches = batchCache.getValidCache() || initialBatches;
+        const batch = batches.find((b) => (b.code || b.batchCode || "").toLowerCase() === (target.batchCode || "").toLowerCase());
+        if (batch && (batch.enrolledSeats || 0) > 0) {
           batchService.updateBatch(batch.id, {
-            enrolledSeats: batch.enrolledSeats - 1,
+            enrolledSeats: (batch.enrolledSeats || 1) - 1,
           });
         }
       }
@@ -170,8 +189,8 @@ export const admissionService = {
 
   getStats: function () {
     const admissions = this.getAdmissions();
-    const courses = courseService.getCourses();
-    const batches = batchService.getBatches();
+    const courses = courseCache.getValidCache() || initialCourses;
+    const batches = batchCache.getValidCache() || initialBatches;
 
     const total = admissions.length;
     const active = admissions.filter((a) => a.status === "Active").length;
@@ -196,7 +215,7 @@ export const admissionService = {
       pendingAdmissions: inactive,
       totalCourses: courses.length,
       activeBatches: batches.filter(
-        (b) => b.status === "Ongoing" || b.status === "Upcoming"
+        (b) => b.status === 2 || b.status === 1 || b.status === "Ongoing" || b.status === "Upcoming"
       ).length,
       totalFeeCollected: totalCollected,
       totalFeeExpected: totalExpected,

@@ -58,70 +58,79 @@ export default function AdmissionForm({
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   useEffect(() => {
-    const availableCourses = courseService.getCourses();
-    const availableBatches = batchService.getBatches();
-    setCourses(availableCourses);
-    setBatches(availableBatches);
+    let isMounted = true;
+    Promise.all([courseService.getCourses(), batchService.getBatches()]).then(
+      ([availableCourses, availableBatches]) => {
+        if (!isMounted) return;
+        setCourses(availableCourses);
+        setBatches(availableBatches);
 
-    if (admissionToEdit) {
-      setStudentId(admissionToEdit.studentId || "");
-      setRegistrationId(admissionToEdit.registrationId || "");
-      setStudentName(admissionToEdit.studentName || "");
-      setMobile(admissionToEdit.mobile || "");
-      setEmail(admissionToEdit.email || "");
-      setAadhaar(admissionToEdit.aadhaar || "");
-      setQualification(admissionToEdit.qualification || "BCA / B.Sc (IT/CS)");
-      setCourseCode(admissionToEdit.courseCode || "");
-      setBatchCode(admissionToEdit.batchCode || "");
-      setSkillIndiaRegId(admissionToEdit.skillIndiaRegId || "");
-      setAdmissionDate(admissionToEdit.admissionDate || new Date().toISOString().split("T")[0]);
-      setStatus(admissionToEdit.status || "Active");
-      setPaymentStatus(admissionToEdit.paymentStatus || "Paid");
-      setAmountPaid(admissionToEdit.amountPaid || 0);
-      setTotalFee(admissionToEdit.totalFee || 0);
-      setGender(admissionToEdit.gender || "Male");
-      setGuardianName(admissionToEdit.guardianName || "");
-      setGuardianMobile(admissionToEdit.guardianMobile || "");
-      setAddress(admissionToEdit.address || "");
-      setNotes(admissionToEdit.notes || "");
-    } else {
-      const newStudentId = admissionService.generateNextStudentId();
-      const newRegId = admissionService.generateNextRegistrationId();
-      const newSkillId = admissionService.generateNextSkillIndiaId();
-      const initialCourse = availableCourses[0]?.courseCode || "";
-      const initialBatch = initialCourse ? admissionService.getAutoBatchForCourse(initialCourse) : "";
-      const matchedCourse = availableCourses.find((c) => c.courseCode === initialCourse);
+        if (admissionToEdit) {
+          setStudentId(admissionToEdit.studentId || "");
+          setRegistrationId(admissionToEdit.registrationId || "");
+          setStudentName(admissionToEdit.studentName || "");
+          setMobile(admissionToEdit.mobile || "");
+          setEmail(admissionToEdit.email || "");
+          setAadhaar(admissionToEdit.aadhaar || "");
+          setQualification(admissionToEdit.qualification || "BCA / B.Sc (IT/CS)");
+          setCourseCode(admissionToEdit.courseCode || "");
+          setBatchCode(admissionToEdit.batchCode || "");
+          setSkillIndiaRegId(admissionToEdit.skillIndiaRegId || "");
+          setAdmissionDate(admissionToEdit.admissionDate || new Date().toISOString().split("T")[0]);
+          setStatus(admissionToEdit.status || "Active");
+          setPaymentStatus(admissionToEdit.paymentStatus || "Paid");
+          setAmountPaid(admissionToEdit.amountPaid || 0);
+          setTotalFee(admissionToEdit.totalFee || 0);
+          setGender(admissionToEdit.gender || "Male");
+          setGuardianName(admissionToEdit.guardianName || "");
+          setGuardianMobile(admissionToEdit.guardianMobile || "");
+          setAddress(admissionToEdit.address || "");
+          setNotes(admissionToEdit.notes || "");
+        } else {
+          const newStudentId = admissionService.generateNextStudentId();
+          const newRegId = admissionService.generateNextRegistrationId();
+          const newSkillId = admissionService.generateNextSkillIndiaId();
+          const initialCourse = availableCourses[0]?.code || availableCourses[0]?.courseCode || "";
+          const initialBatch = initialCourse ? admissionService.getAutoBatchForCourse(initialCourse) : "";
+          const matchedCourse = availableCourses.find((c) => (c.code || c.courseCode) === initialCourse);
 
-      setStudentId(newStudentId);
-      setRegistrationId(newRegId);
-      setStudentName("");
-      setMobile("");
-      setEmail("");
-      setAadhaar("");
-      setQualification("BCA / B.Sc (IT/CS)");
-      setCourseCode(initialCourse);
-      setBatchCode(initialBatch);
-      setSkillIndiaRegId(newSkillId);
-      setAdmissionDate(new Date().toISOString().split("T")[0]);
-      setStatus("Active");
-      setPaymentStatus("Paid");
-      setTotalFee(matchedCourse?.totalFee || 45000);
-      setAmountPaid(matchedCourse?.totalFee || 45000);
-      setGender("Male");
-      setGuardianName("");
-      setGuardianMobile("");
-      setAddress("");
-      setNotes("");
-    }
+          setStudentId(newStudentId);
+          setRegistrationId(newRegId);
+          setStudentName("");
+          setMobile("");
+          setEmail("");
+          setAadhaar("");
+          setQualification("BCA / B.Sc (IT/CS)");
+          setCourseCode(initialCourse);
+          setBatchCode(initialBatch);
+          setSkillIndiaRegId(newSkillId);
+          setAdmissionDate(new Date().toISOString().split("T")[0]);
+          setStatus("Active");
+          setPaymentStatus("Paid");
+          setTotalFee(matchedCourse?.fee !== undefined ? Number(matchedCourse.fee) : (matchedCourse?.totalFee || 45000));
+          setAmountPaid(matchedCourse?.fee !== undefined ? Number(matchedCourse.fee) : (matchedCourse?.totalFee || 45000));
+          setGender("Male");
+          setGuardianName("");
+          setGuardianMobile("");
+          setAddress("");
+          setNotes("");
+        }
+      }
+    );
+
+    return () => {
+      isMounted = false;
+    };
   }, [admissionToEdit]);
 
   const handleCourseChange = (selectedCourseCode: string) => {
     setCourseCode(selectedCourseCode);
-    const selectedCourse = courses.find((c) => c.courseCode === selectedCourseCode);
+    const selectedCourse = courses.find((c) => (c.code || c.courseCode) === selectedCourseCode);
     if (selectedCourse) {
-      setTotalFee(selectedCourse.totalFee);
+      const fee = selectedCourse.fee !== undefined ? Number(selectedCourse.fee) : (selectedCourse.totalFee || 0);
+      setTotalFee(fee);
       if (!isEditMode) {
-        setAmountPaid(selectedCourse.totalFee);
+        setAmountPaid(fee);
       }
     }
     const autoBatch = admissionService.getAutoBatchForCourse(selectedCourseCode);

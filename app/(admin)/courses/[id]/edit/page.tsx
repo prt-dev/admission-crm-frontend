@@ -16,14 +16,16 @@ export default function EditCoursePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      const courses = courseService.getCourses();
-      const found = courses.find((c) => c.id === id || c.courseCode === id);
-      if (found) {
-        setCourse(found);
+    const fetchCourse = async () => {
+      if (id) {
+        const found = await courseService.getCourseById(id);
+        if (found) {
+          setCourse(found);
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }
+    };
+    fetchCourse();
   }, [id]);
 
   if (isLoading) {

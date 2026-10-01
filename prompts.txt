@@ -642,11 +642,456 @@ Extracted and centralized all component interfaces and data types into dedicated
 3. `components/student/`:
    - Refactored all student components (`StudentCertificatesSection`, `StudentProfileCard`, `StudentStatsCards`, `StudentSyllabusSection`, `StudentScheduleSection`, `StudentFeeBreakdown`, `StudentDashboardView`) to import their respective interfaces from `@/types/student`.
 ================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #39]
+create attendance module with following keys by using C:\xampp\htdocs\prateek-work\courses-and-batches.txt file as reference:-
+date
+duration
+type(T,P,O)
+status
 
+[RESPONSE #39]
+Created complete Attendance Module with all specified keys (date, duration, type(T,P,O), status) using NLETA Skill India Mission curriculum specifications from courses-and-batches.txt:
+1. `types/attendance.ts`:
+   - Defined `AttendanceType` (`"T" | "P" | "O"` for Theory, Practical, and On-Site/Other).
+   - Defined `AttendanceStatus` (`"Present" | "Absent" | "Late" | "Excused"`).
+   - Defined `AttendanceRecord` with keys: `date`, `duration`, `type`, `status`, `topic`, `studentId`, `batchCode`, `remarks`.
+   - Defined `AttendanceSession`, `CurriculumTopic`, `AttendanceMetrics`, `AttendanceFilterState`, and component prop interfaces.
+   - Re-exported in `types/index.ts`.
+2. `data/attendanceData.ts`:
+   - Extracted curriculum topics with standard syllabus hours (Theory - T, Practical - P, On-Site - O) based on `courses-and-batches.txt`.
+   - Seeded initial daily attendance session logs and candidate attendance records.
+   - Re-exported in `data/index.ts`.
+3. `services/attendanceService.ts`:
+   - Implemented reactive attendance service with localStorage persistence, event dispatching, session creation, status updating, and metrics computation.
+4. `components/attendance/`:
+   - `AttendanceStatsCards.tsx`: KPI cards for Avg Attendance Rate %, Total Logged Hours, and individual breakdowns for Theory (T) Hours, Practical (P) Hours, and On-Site (O) Hours.
+   - `AttendanceFilterBar.tsx`: Multi-dimensional filtering by search query, Batch, Type (T, P, O), Status (Present, Absent, Late, Excused), and Date range.
+   - `AttendanceTable.tsx`: Tabular view displaying Date, Student, Topic, Duration badge, Type badge (T, P, O), Status badge, remarks, and quick inline status updater.
+   - `AttendanceMarkModal.tsx`: Interactive modal for instructors to record batch session attendance with date, duration, T/P/O type selector, curriculum topic picker, and student roster checklist with 1-click bulk marking.
+   - `AttendanceTypeDistribution.tsx`: Visual progress and target comparisons for Theory (T), Practical (P), and On-Site (O) hours.
+   - `AttendanceBatchSessionView.tsx`: Cohort session cards showing turnout percentages and notes.
+5. `app/(admin)/attendance/page.tsx`:
+   - Built dedicated `/attendance` route with Tabbed views (Daily Logs, Session Sheets, Curriculum Blueprint), CSV export, KPI cards, and modal triggers.
+6. `components/layout/Sidebar.tsx`:
+   - Added "Attendance" navigation link with badge and icon.
+7. `components/student/` & `types/student.ts`:
+   - Added `StudentAttendanceSection.tsx` and "Attendance & Hours (T/P/O)" tab in Student Portal view.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #40]
+create session module too
 
+[RESPONSE #40]
+Created complete Training Session & Timetable Management Module:
+1. `types/session.ts`:
+   - Defined `SessionType` (`"T" | "P" | "O"` for Theory, Practical, and On-Site).
+   - Defined `SessionStatus` (`"Scheduled" | "In-Progress" | "Completed" | "Cancelled"`).
+   - Defined `TrainingSession` model with fields: `id`, `sessionCode`, `batchCode`, `batchName`, `courseCode`, `courseName`, `date`, `startTime`, `endTime`, `duration`, `type`, `topic`, `moduleName`, `moduleNumber`, `trainerName`, `classroomLocation`, `status`, `totalStudents`, `presentCount`, `absentCount`, `lateCount`, `excusedCount`, `objectivesCovered`, `notes`, `meetingLink`.
+   - Defined `SessionFilterState`, `SessionMetrics`, and component prop interfaces.
+   - Re-exported in `types/index.ts`.
+2. `data/sessionData.ts`:
+   - Seeded comprehensive dataset of scheduled, in-progress, and completed sessions across elevator curriculum and batches.
+   - Re-exported in `data/index.ts`.
+3. `services/sessionService.ts`:
+   - Built session management service with localStorage persistence, cross-tab event synchronization, CRUD methods (`getSessions`, `getSessionById`, `getSessionsByBatch`, `createSession`, `updateSession`, `updateSessionStatus`, `deleteSession`, `getMetrics`).
+4. `components/sessions/`:
+   - `SessionStatsCards.tsx`: KPI cards for Total Sessions, Completed Sessions (with turnout rate %), Upcoming Scheduled Sessions, Theory (T) Hours, and Practical (P) / On-Site (O) Hours.
+   - `SessionFilterBar.tsx`: Multi-dimensional filtering by search query, Batch, Course, Type (T, P, O), Status, Trainer, and Date range.
+   - `SessionTable.tsx`: Tabular view with session code, curriculum topic, schedule timing, duration, type badge, classroom location, trainer, turnout progress, status dropdown, and action buttons.
+   - `SessionScheduleModal.tsx`: Interactive modal to schedule and edit sessions with date, time slot, duration, T/P/O type selector, curriculum topic picker, trainer, classroom venue, and lesson agenda.
+   - `SessionDetailModal.tsx`: Comprehensive inspection modal showcasing syllabus deliverables, timetable information, attendance turnout, and direct trigger to mark session attendance.
+   - `SessionCalendarView.tsx`: Timetable and day-by-day calendar view grouped by date.
+5. `app/(admin)/sessions/page.tsx`:
+   - Main `/sessions` route with Tabs (Sessions Directory, Timetable View, Syllabus Curriculum Blueprint), CSV schedule export, and modals integration.
+6. `components/layout/Sidebar.tsx`:
+   - Added "Sessions" link to main navigation.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #41]
+use C:\xampp\htdocs\prateek-work\courses-and-batches.txt for dummy data in batch and course module
 
+[RESPONSE #41]
+Updated Course and Batch dummy datasets directly from NLETA Skill India Mission curriculum specification (courses-and-batches.txt):
+1. `data/courseData.ts`:
+   - Added core elevator industry qualification programs:
+     - `CRS-NLETA-LO01`: Lift Operator & Safe Attendant Certification (3 Months / 120 Hours, QP: SSC/Q1401)
+     - `CRS-NLETA-NIT02`: New Installation (NI) Elevator Technician (6 Months / 360 Hours, QP: SSC/Q1402)
+     - `CRS-NLETA-NIE03`: New Installation (NI) Elevator Project Engineer (6 Months / 420 Hours, QP: SSC/Q1403)
+     - `CRS-NLETA-EIT04`: Existing Installation (EI) Elevator Maintenance Technician (5 Months / 300 Hours, QP: SSC/Q1404)
+     - `CRS-NLETA-EIE05`: Existing Installation (EI) Service & Modernization Engineer (6 Months / 380 Hours, QP: SSC/Q1405)
+     - `CRS-NLETA-SLS06`: Elevator Technical Sales & Estimation Engineer (4 Months / 240 Hours, QP: SSC/Q1406)
+   - Kept complementary IT & design courses for backwards-compatibility.
+2. `data/batchData.ts`:
+   - Seeded corresponding cohort batches:
+     - `BAT-2026-NIT01`: NI Elevator Technician Morning Cohort (Mechanical Shaft Bay 1 & Rigging Lab, Er. Amit Verma)
+     - `BAT-2026-NIE01`: NI Elevator Project Engineer Master Batch (PLC Automation & Controller Bay, Prof. Rajesh Sharma)
+     - `BAT-2026-EIT01`: EI Elevator Maintenance Morning Cohort (Live Lift Shaft & Pit Simulator, Er. Amit Verma)
+     - `BAT-2026-EIE01`: EI Service Engineer Advanced Cohort (Electrical Diagnostics & CBM Lab, Prof. Suresh Nair)
+     - `BAT-2026-LO01`: Lift Operator & Safe Attendant FastTrack (Lift Safety Simulator, Vikram Kapoor)
+     - `BAT-2026-SLS01`: Elevator Technical Sales Executive Cohort (Executive Virtual Auditorium, Dr. Ananya Mukherjee)
+3. `services/courseService.ts` & `services/batchService.ts`:
+   - Incremented storage keys to `crm_courses_v2` and `crm_batches_v2` to immediately refresh the active UI state.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #42]
+Session contains academic sessions with have batches to run (like school)
 
+[RESPONSE #42]
+Re-architected the Session Module to represent Institutional Academic Sessions containing running Batches:
+1. `types/session.ts`:
+   - Defined `AcademicSession` model with fields: `id`, `sessionCode` (e.g. `AS-2026-27`), `sessionName` (e.g. `Academic Session 2026-2027`), `startDate`, `endDate`, `isCurrent` (active institutional cycle), `status` (`Active`, `Upcoming`, `Completed`, `Archived`), `description`, `runningBatchesCount`, `totalEnrolledStudents`, `totalCapacitySeats`.
+   - Defined `AcademicSessionFilterState`, `AcademicSessionMetrics`, and component prop interfaces.
+   - Re-exported in `types/index.ts`.
+2. `types/batch.ts`:
+   - Linked `academicSessionCode` and `academicSessionName` to `Batch` model.
+3. `data/sessionData.ts`:
+   - Seeded academic sessions:
+     - `AS-2026-27` ("Academic Session 2026-2027", Current Active Cycle, running all NLETA & IT cohorts)
+     - `AS-2025-26` ("Academic Session 2025-2026", Completed)
+     - `AS-2027-28` ("Academic Session 2027-2028", Upcoming Planned)
+   - Built helper `calculateAcademicSessionMetrics()`.
+4. `services/sessionService.ts`:
+   - Built academic session management service with methods: `getSessions`, `getCurrentSession`, `getSessionById`, `getBatchesForSession`, `createSession`, `updateSession`, `setAsCurrentSession`, `deleteSession`, and `getMetrics`.
+5. `components/sessions/`:
+   - `AcademicSessionStatsCards.tsx`: KPI cards for Active Academic Year, Total Running Batches, Enrolled Candidates & Capacity Occupancy %, Total Institutional Cycles.
+   - `AcademicSessionFilterBar.tsx`: Filter by status, search, and session code.
+   - `AcademicSessionTable.tsx`: Full table view showing session code, academic dates, running batches badge with quick drawer trigger, status, and actions.
+   - `AcademicSessionModal.tsx`: Create / Edit modal with date pickers and "Set as Current Institutional Session" toggle.
+   - `AcademicSessionDetailModal.tsx`: Inspection modal displaying all running cohort batches under the selected academic session.
+6. `app/(admin)/sessions/page.tsx`:
+   - Built dedicated Academic Sessions page at `/sessions` with live metrics, table, modals, and batch links.
+7. `components/layout/Sidebar.tsx`:
+   - Updated menu item to "Academic Sessions" with "26-27" badge.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #43]
+use following as courses (Curriculum Specification from courses-and-batches.txt)
 
+[RESPONSE #43]
+Updated and aligned the Course catalog with the full NLETA Skill India Mission curriculum specifications:
+1. `data/courseData.ts`:
+   - Configured all 6 primary qualification programs and specialized safety modules:
+     - `CRS-NLETA-LO01`: Lift Operator & Safe Attendant Qualification (120 Hours)
+     - `CRS-NLETA-NIT02`: Training for New Installations (NI) - Technician (360 Hours)
+     - `CRS-NLETA-NIE03`: Training for New Installations (NI) - Engineer (420 Hours)
+     - `CRS-NLETA-EIT04`: Training for Existing Installations (EI) - Maintenance Technician (300 Hours)
+     - `CRS-NLETA-EIE05`: Training for Existing Installations (EI) - Service Engineer (380 Hours)
+     - `CRS-NLETA-SLS06`: Elevator Technical Sales & Application Engineer (240 Hours)
+     - `CRS-NLETA-SAF07`: Elevator Safety Training & Statutory Codes Mastery (160 Hours)
+   - Syllabus highlights directly reference the numbered modules: 1.0 Overview, 2.0 Industry, 3.1 General Safety, 3.2 First Aid CPR, 3.3 Machine Room & Shaft, 3.4 Escalator, 4.0 Prevailing Codes (IS 14665, BS-EN 81, EN-81-28), 5.1 NI Mechanical, 5.2 NI Electrical, 6.1 EI Preventive Maintenance & CBM, and 6.2 Controls & Safe Jumpers.
+2. Incremented storage cache in `services/courseService.ts` to refresh the active catalog.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #44]
+use following as batches
+Lift Operator
+NI Tech.
+NI Engg.
+EI Tech.
+Ei Engg.
+Sales Engg.
 
+[RESPONSE #44]
+Configured and seeded the 6 designated batches aligned with NLETA courses and Academic Session:
+1. `data/batchData.ts`:
+   - Configured exact 6 batches:
+     1. `Lift Operator` (`BAT-2026-LO01`) - Course: Lift Operator & Safe Attendant Qualification (`CRS-NLETA-LO01`), Trainer: Vikram Kapoor
+     2. `NI Tech.` (`BAT-2026-NIT01`) - Course: Training for New Installations (NI) - Technician (`CRS-NLETA-NIT02`), Trainer: Er. Amit Verma
+     3. `NI Engg.` (`BAT-2026-NIE01`) - Course: Training for New Installations (NI) - Engineer (`CRS-NLETA-NIE03`), Trainer: Prof. Rajesh Sharma
+     4. `EI Tech.` (`BAT-2026-EIT01`) - Course: Training for Existing Installations (EI) - Maintenance Technician (`CRS-NLETA-EIT04`), Trainer: Er. Amit Verma
+     5. `Ei Engg.` (`BAT-2026-EIE01`) - Course: Training for Existing Installations (EI) - Service Engineer (`CRS-NLETA-EIE05`), Trainer: Prof. Suresh Nair
+     6. `Sales Engg.` (`BAT-2026-SLS01`) - Course: Elevator Technical Sales & Application Engineer (`CRS-NLETA-SLS06`), Trainer: Dr. Ananya Mukherjee
+   - All 6 batches are linked to `AS-2026-27` ("Academic Session 2026-2027").
+2. `data/admissionData.ts`:
+   - Updated candidate enrollments and allocations across these 6 batches.
+3. `services/batchService.ts` & `services/admissionService.ts`:
+   - Refreshed storage keys to `crm_batches_v3` and `crm_admissions_v3` for immediate UI synchronization.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #45]
+use following as courses (Full Curriculum Breakdown from courses-and-batches.txt)
 
+[RESPONSE #45]
+Verified and mapped the complete NLETA Skill India Mission curriculum matrix and hour breakdowns:
+1. `data/courseData.ts`:
+   - Configured all 6 primary qualification programs mapped 1:1 with batches:
+     1. `CRS-NLETA-LO01`: Lift Operator & Safe Attendant Qualification (120 Hours, QP: SSC/Q1401) -> Batch: Lift Operator
+     2. `CRS-NLETA-NIT02`: Training for New Installations (NI) - Technician (360 Hours, QP: SSC/Q1402) -> Batch: NI Tech.
+     3. `CRS-NLETA-NIE03`: Training for New Installations (NI) - Engineer (420 Hours, QP: SSC/Q1403) -> Batch: NI Engg.
+     4. `CRS-NLETA-EIT04`: Training for Existing Installations (EI) - Maintenance Technician (300 Hours, QP: SSC/Q1404) -> Batch: EI Tech.
+     5. `CRS-NLETA-EIE05`: Training for Existing Installations (EI) - Service Engineer (380 Hours, QP: SSC/Q1405) -> Batch: Ei Engg.
+     6. `CRS-NLETA-SLS06`: Elevator Technical Sales & Application Engineer (240 Hours, QP: SSC/Q1406) -> Batch: Sales Engg.
+     7. `CRS-NLETA-SAF07`: Elevator Safety Training & Statutory Codes Mastery (160 Hours, QP: SSC/Q1407)
+2. `data/attendanceData.ts`:
+   - Extracted all curriculum modules (1.0, 2.0, 3.1, 3.2, 3.3, 3.4, 4.0, 5.1, 5.2, 5.3, 6.1, 6.2) with Theory (T), Practical (P), and On-Site (O) training hours.
+   - Linked modules and training hour breakdowns for attendance marking and session timetables.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #46]
+no token getting or setting in header 
+we are using httponly cookie
 
+[RESPONSE #46]
+Updated `services/apiClient.ts` for HttpOnly cookie authentication:
+1. Removed `getAuthHeaders()` token retrieval from `localStorage` (`nleta_auth_token`) and eliminated the manual `Authorization: Bearer <token>` header injection.
+2. Replaced with `getDefaultHeaders()` providing standard JSON headers (`Content-Type: application/json`, `Accept: application/json`).
+3. Added `credentials: "include"` to all HTTP fetch calls (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`) so browsers automatically include and process `HttpOnly` session cookies on cross-origin/same-origin backend requests.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #47]
+remove repeating code in apiclient using method as argument
+
+[RESPONSE #47]
+Refactored `services/apiClient.ts` to remove boilerplate repetition using a unified `request` method:
+1. `types/api.ts`:
+   - Defined `HttpMethod` (`"GET" | "POST" | "PUT" | "PATCH" | "DELETE"`), `RequestOptions` (with `params`, `data`, `headers`), and `ApiResponse<T>`.
+   - Re-exported in `types/index.ts`.
+2. `services/apiClient.ts`:
+   - Implemented `request<T>(method: HttpMethod, endpoint: string, options?: RequestOptions)` containing all the URL resolution, query string parameter serialization, headers merge, `credentials: "include"`, and payload handling.
+   - Refactored `get()`, `post()`, `put()`, `patch()`, and `delete()` to simple one-line wrappers delegating to `this.request(method, ...)`.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #48]
+now use this courses
+
+[RESPONSE #48]
+Populated `data/courseData.ts` with the complete catalog of qualification programs and detailed two-dot (`X.Y.Z`) curriculum courses:
+1. `data/courseData.ts`:
+   - Configured all 6 core Qualification Programs (`Lift Operator`, `NI Tech.`, `NI Engg.`, `EI Tech.`, `Ei Engg.`, `Sales Engg.`) for cohort batch assignments.
+   - Seeded all detailed module courses from the curriculum specification:
+     - 3.1 General Safety: Signages and Warnings, PPE, Equipments Tools & Tackels, Fire protection, Barriers against Fall protection, Scaffolding working, Electrical Equipments working, Proper use of jumpers, Handling of Materials, Working with chemicals and paint, Tool Box Talk (TBT).
+     - 3.2 First Aid Training: First Aid Kit, Hazard Removal, Identification of Injuries, Accident Reporting, Bandage and Airway, CPR Procedure.
+     - 3.3 Elevator / Lift Safety: Machine room Safety, Shaft General Safety, Working on Safety Planks, Cartop entry & working Safety, Pit entry & working Safety, Maintenance working Safety, Risk Management and analysis.
+     - 5.1 NI Mechanical: Reading of Horizontal / Vertical Projections, Installation Shaft Survey, Plumbing concepts, Guiderail Installation Basics, Guide Rail Joint Process, Guiderail Alignment Basics, Landing Doors Installation Basics, Drilling Basic Concepts, Torqueing & Fasteners, Quality Inspections, Roping Basics, Parts Assembly, Over Speed Governor & Safety Gear Operation.
+     - 5.2 NI Electrical: Operating Logic fundamentals, Reading Electrical Drawings, Symbols and Abbreviations, Connections, Parameters Settings and Programing, Auto Rescue Operation, Balancing & Load Testing Procedure, Quality Inspections.
+     - 6.1 EI Mechanical: Job Site Preparation, Reporting for Risk Analysis, Access/Entry Control, Fault Analysis, Tool Assessment, Preventive Maintenance, Condition Based Maintenance (CBM), Safety Testing.
+     - 6.2 EI Electrical & Controls: Wire tracing and ferrules, Emergency Rescue Process, Auto Attendant Mode.
+2. `services/courseService.ts`:
+   - Bumped storage key to `crm_courses_v3` to refresh active browser state.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #49]
+use the text without dots in C:\xampp\htdocs\prateek-work\courses-and-batches.txt as category of course
+
+[RESPONSE #49]
+Extracted and applied the non-dotted major headings from `courses-and-batches.txt` as official course categories across the CRM:
+1. `types/course.ts`:
+   - Updated `CourseCategory` type to the 6 non-dotted headings:
+     1. `"OVERVIEW OF NLETA SKILL INDIA MISSION"`
+     2. `"OVERVIEW OF ELEVATOR INDUSTRY"`
+     3. `"SAFETY TRAINING"`
+     4. `"OVERVIEW OF PREVAILING CODES AND STANDARDS"`
+     5. `"TRAINING FOR NEW INSTALLATIONS (NI)"`
+     6. `"TRAINING FOR EXISTING INSTALLATIONS (EI)"`
+2. `components/forms/courses/CourseBasicInfoSection.tsx` & `CourseForm.tsx`:
+   - Updated `CATEGORIES` selector to provide these exact 6 course categories.
+3. `data/courseData.ts`:
+   - Mapped all courses across the catalog to their respective non-dotted category.
+4. `services/courseService.ts`:
+   - Bumped storage key to `crm_courses_v4` for immediate UI synchronization.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #50]
+include thes in courses
+
+OVERVIEW OF NLETA SKILL INDIA MISSION
+OVERVIEW OF ELEVATOR INDUSTRY
+
+[RESPONSE #50]
+Verified and confirmed inclusion of both foundational orientation courses in the catalog:
+1. `data/courseData.ts`:
+   - `CRS-NLETA-OVW01`: **Overview of NLETA Skill India Mission** (Category: `OVERVIEW OF NLETA SKILL INDIA MISSION`, 2 Theory Hours, Total Fee: ₹1,500, QP: `SSC/Q1401`)
+   - `CRS-NLETA-IND02`: **Overview of Elevator Industry** (Category: `OVERVIEW OF ELEVATOR INDUSTRY`, 2 Theory Hours, Total Fee: ₹1,500, QP: `SSC/Q1401`)
+2. Both courses are active in `data/courseData.ts` and available for student enrollment, attendance marking, and training timetable schedules.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #51]
+create session crud
+
+[RESPONSE #51]
+Enhanced `services/sessionService.ts` with complete CRUD operations and REST API client methods:
+1. Query / Read:
+   - `getSessions(filters?)`: Multi-criteria querying (search, status filter).
+   - `getSessionById(id)` & `getSessionByCode(sessionCode)`.
+   - `getCurrentSession()`: Retrieves the active institutional academic cycle.
+   - `getBatchesForSession(sessionCode)`: Retrieves all running cohort batches under the session.
+   - `getMetrics()`: Calculates institutional KPIs.
+2. Create:
+   - `createSession(data)`: Generates session code `AS-YYYY-YY`, enforces single active current session rule, initializes capacity counters, and synchronizes state.
+3. Update:
+   - `updateSession(id, updates)`: Full/partial attribute updater.
+   - `updateSessionStatus(id, status)`: Status transitions (`Active`, `Upcoming`, `Completed`, `Archived`).
+   - `setAsCurrentSession(id)`: Switches the active institutional academic year.
+4. Delete:
+   - `deleteSession(id)`: Removes academic session record and triggers cross-tab updates.
+5. Async REST API methods (`sessionService.api`):
+   - `getAll(params?)`, `getById(id)`, `create(data)`, `update(id, data)`, `patch(id, data)`, `delete(id)`, and `setCurrent(id)` wired via `apiClient`.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #52]
+add getBatchesBySession in batch service and use in sessionservice
+
+[RESPONSE #52]
+Added `getBatchesBySession` method to `batchService` and reused it within `sessionService`:
+1. `services/batchService.ts`:
+   - Implemented `getBatchesBySession(sessionCode: string): Batch[]` matching batches by explicit `academicSessionCode` or inception start year.
+2. `services/sessionService.ts`:
+   - Updated `getBatchesForSession(sessionCode: string): Batch[]` to directly delegate to `batchService.getBatchesBySession(sessionCode)`.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #53]
+remove getBatchesForSession
+
+[RESPONSE #53]
+Removed `getBatchesForSession` from `services/sessionService.ts`:
+1. Removed `getBatchesForSession` function and unused `Batch` import from `sessionService.ts`.
+2. Batch queries by session are now solely and cleanly handled by `batchService.getBatchesBySession(sessionCode)`.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #54]
+create apisessionservice using AcademicSession model api's in the backend reference
+
+[RESPONSE #54]
+Created dedicated `apiSessionService` (`apiAcademicSessionService`) implementing all AcademicSession Laravel REST API model endpoints:
+1. `types/session.ts`:
+   - Added typed Data Transfer Objects: `CreateAcademicSessionDTO`, `UpdateAcademicSessionDTO`, and `AcademicSessionQueryParams`.
+2. `services/apiSessionService.ts`:
+   - `getAll(params?)`: `GET /api/academic-sessions` with query filters and pagination.
+   - `getById(id)`: `GET /api/academic-sessions/{id}`.
+   - `getByCode(code)`: `GET /api/academic-sessions/code/{code}`.
+   - `getCurrent()`: `GET /api/academic-sessions/current`.
+   - `getActive()`: `GET /api/academic-sessions/active`.
+   - `getMetrics()`: `GET /api/academic-sessions/metrics`.
+   - `getBatches(id, params?)`: `GET /api/academic-sessions/{id}/batches`.
+   - `create(data)`: `POST /api/academic-sessions`.
+   - `update(id, data)`: `PUT /api/academic-sessions/{id}`.
+   - `patch(id, data)`: `PATCH /api/academic-sessions/{id}`.
+   - `delete(id)`: `DELETE /api/academic-sessions/{id}`.
+   - `setCurrent(id)`: `POST /api/academic-sessions/{id}/set-current`.
+   - `updateStatus(id, status)`: `PATCH /api/academic-sessions/{id}/status`.
+   - `archive(id)` & `restore(id)`: Session lifecycle management endpoints.
+3. `services/sessionService.ts` & `services/index.ts`:
+   - Linked `sessionService.api` to `apiSessionService` and exported `apiSessionService` for barrel imports.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #55]
+check the routes api file in backend for apisessionservice endpoints
+
+[RESPONSE #55]
+Inspected backend `routes/api.php` and `AcademicSessionController.php` and aligned all `apiSessionService` endpoints with the backend REST definitions:
+1. Backend Academic Session Route Group (`routes/api.php`):
+   - `GET /api/sessions` -> `AcademicSessionController@index`
+   - `GET /api/sessions/current` -> `AcademicSessionController@current`
+   - `POST /api/sessions` -> `AcademicSessionController@store`
+   - `GET /api/sessions/{id}` -> `AcademicSessionController@show`
+   - `PUT /api/sessions/{id}` -> `AcademicSessionController@update`
+   - `DELETE /api/sessions/{id}` -> `AcademicSessionController@destroy`
+   - `PATCH /api/sessions/{id}/status` -> `AcademicSessionController@updateStatus`
+   - `POST /api/sessions/{id}/set-current` -> `AcademicSessionController@setCurrent`
+   - `GET /api/sessions/{id}/batches` -> `AcademicSessionController@batches`
+2. `services/apiSessionService.ts`:
+   - Updated endpoints from `academic-sessions` to `sessions` matching `AcademicSessionController` route registrations.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #56]
+apply the code but put cache functions in sessioncache also put interface in respective type file
+
+[RESPONSE #56]
+Separated cache management into a dedicated `sessionCache` layer and integrated it with `sessionService`:
+1. `types/session.ts`:
+   - Added `SessionCacheEnvelope` interface holding `data: AcademicSession[]` and `cachedAt: number` timestamp.
+2. `services/sessionCache.ts`:
+   - Created dedicated `sessionCache` manager providing `getValidCache(ttlMs?)`, `setCache(data)`, `clearCache()`, `invalidate()`, `isCacheValid()`, and `getCacheAge()`.
+   - Enforces TTL eviction: if cache age exceeds 5 minutes, automatically evicts cache and returns `null`.
+3. `services/sessionService.ts`:
+   - Refactored `sessionService` to delegate all cache reads, writes, and TTL validations to `sessionCache`.
+   - Wired `fetchSessions` and mutation operations (`createSession`, `updateSession`, `deleteSession`, etc.) with `apiSessionService` inside `try...catch` blocks with automatic local fallback.
+4. `services/index.ts`:
+   - Exported `sessionCache`.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #57]
+use only getSessions, not new function fetchSessions
+
+[RESPONSE #57]
+Consolidated data retrieval into the single `getSessions` method in `services/sessionService.ts`:
+1. `services/sessionService.ts`:
+   - Removed `fetchSessions`.
+   - Updated `getSessions(filters?, forceRefresh?)` to directly perform TTL cache verification via `sessionCache.getValidCache()` and trigger `apiSessionService.getAll()` with `try...catch` upon cache expiration.
+   - Updated dependent readers (`getCurrentSession`, `getSessionById`, `getSessionByCode`) to use `await this.getSessions()`.
+2. `app/(admin)/sessions/page.tsx`:
+   - Updated `loadData` to asynchronously `await sessionService.getSessions()`.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #58]
+apply logospinner loader for data loading in tables
+
+[RESPONSE #58]
+Integrated branded `LogoSpinner` across all CRM data tables during loading states:
+1. `components/ui/DataTable.tsx`:
+   - Replaced generic gray pulse placeholders with centered `LogoSpinner` displaying loading label and sublabel within table body rows.
+2. `components/sessions/AcademicSessionTable.tsx`:
+   - Added `isLoading?: boolean` prop and configured full-container `LogoSpinner` state while fetching session cycles.
+3. `types/session.ts` & `app/(admin)/sessions/page.tsx`:
+   - Updated `AcademicSessionTableProps` and added loading lifecycle state in sessions dashboard page.
+4. `components/attendance/AttendanceTable.tsx` & `types/attendance.ts`:
+   - Added `isLoading?: boolean` support to render `LogoSpinner` during attendance roster/log queries.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #59]
+apply Quick One-Liner Check
+
+[RESPONSE #59]
+Updated `sessionService.getSessions()` in `services/sessionService.ts` to extract paginated `items` array from backend response:
+```typescript
+const items = (response.data as any)?.items ?? response.data;
+
+if (response.success && Array.isArray(items) && items.length > 0) {
+  sessions = items;
+  sessionCache.setCache(sessions);
+} else {
+  sessions = initialAcademicSessions;
+  sessionCache.setCache(sessions);
+}
+```
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #60]
+apply changes in batch and course module as according to we do in session module by reading respective migration and routes in backend
+
+[RESPONSE #60]
+Applied full TTL caching, REST API clients, DTOs, and branded loading states across Courses and Batches modules based on backend Laravel migrations (`courses`, `batches`, `batch_courses`) and API routes:
+1. Course Module:
+   - `types/course.ts`: Added `CreateCourseDTO`, `UpdateCourseDTO`, `CourseQueryParams`, and `CourseCacheEnvelope`.
+   - `services/apiCourseService.ts`: REST API client for `GET /api/courses`, `POST /api/courses`, `GET /api/courses/{id}`, `PUT /api/courses/{id}`, `DELETE /api/courses/{id}`, and `PATCH /api/courses/{id}/status`.
+   - `services/courseCache.ts`: Dedicated TTL cache manager (`getValidCache`, `setCache`, `clearCache`, `invalidate`, `isCacheValid`, `getCacheAge`).
+   - `services/courseService.ts`: Refactored to use `courseCache` with TTL validation, safe `(response.data as any)?.items ?? response.data` extraction, and `apiCourseService` integration.
+2. Batch Module:
+   - `types/batch.ts`: Added `CreateBatchDTO`, `UpdateBatchDTO`, `BatchQueryParams`, and `BatchCacheEnvelope`.
+   - `services/apiBatchService.ts`: REST API client for `GET /api/batches`, `POST /api/batches`, `GET /api/batches/{id}`, `PUT /api/batches/{id}`, `DELETE /api/batches/{id}`, `PATCH /api/batches/{id}/status`, and `GET /api/sessions/{id}/batches`.
+   - `services/batchCache.ts`: Dedicated TTL cache manager (`getValidCache`, `setCache`, `clearCache`, `invalidate`, `isCacheValid`, `getCacheAge`).
+   - `services/batchService.ts`: Refactored to use `batchCache` with TTL validation, safe items extraction, and `apiBatchService` integration.
+3. Module Integration & UI:
+   - `services/index.ts`: Exported `courseCache`, `apiCourseService`, `batchCache`, and `apiBatchService`.
+   - `app/(admin)/courses/page.tsx` & `app/(admin)/batches/page.tsx`: Updated `loadData` lifecycle to asynchronously await dataset queries with `LogoSpinner` loader during data fetching.
+================================================================================
+--------------------------------------------------------------------------------
+[PROMPT #61]
+update their keys also respectively
+
+[RESPONSE #61]
+Updated all Course and Batch keys, schema types, status mappings, request payload transformers, and data normalizers to strictly match Laravel backend migrations (`courses`, `batches`, `batch_courses`), models, FormRequests, and Resources:
+
+1. **Course Module (`types/course.ts`, `services/apiCourseService.ts`, `services/courseService.ts`)**:
+   - Primary Backend Keys: `name`, `code`, `description`, `duration`, `fee`, `status` (1=Active, 2=Inactive), `created_by`, `created_at`, `updated_at`, `creator`, `batches`.
+   - Added Status Enum & Labels: `COURSE_STATUS = { ACTIVE: 1, INACTIVE: 2 }`, `COURSE_STATUS_LABELS`.
+   - `apiCourseService.ts`: Added `formatCoursePayload` to map and serialize both camelCase and snake_case inputs into Laravel `StoreCourseRequest` / `UpdateCourseRequest` keys (`name`, `code`, `fee`, `status`, etc.).
+   - `courseService.ts`: Implemented `normalizeCourse` so that both primary backend schema attributes (`name`, `code`, `fee`, `status`) and backwards-compatible aliases (`courseName`, `courseCode`, `totalFee`, etc.) are consistently present across the entire application.
+
+2. **Batch Module (`types/batch.ts`, `services/apiBatchService.ts`, `services/batchService.ts`)**:
+   - Primary Backend Keys: `name`, `code`, `academic_session_id`, `start_date`, `end_date`, `timing`, `capacity`, `status` (1=Upcoming, 2=Ongoing, 3=Completed, 4=Cancelled), `instructor_id`, `created_by`, `created_at`, `updated_at`, `courses`, `academic_session`, `instructor`, `creator`.
+   - Added Status Enum & Labels: `BATCH_STATUS = { UPCOMING: 1, ONGOING: 2, COMPLETED: 3, CANCELLED: 4 }`, `BATCH_STATUS_LABELS`.
+   - `apiBatchService.ts`: Added `formatBatchPayload` to map and serialize frontend inputs to Laravel `StoreBatchRequest` / `UpdateBatchRequest` keys (`name`, `code`, `academic_session_id`, `course_ids`, `start_date`, `end_date`, `timing`, `capacity`, `status`, etc.).
+   - `batchService.ts`: Implemented `normalizeBatch` so that both backend keys (`name`, `code`, `start_date`, `end_date`, `timing`, `capacity`, `academic_session_id`) and backwards-compatible aliases (`batchName`, `batchCode`, `startDate`, `endDate`, `scheduleTiming`, `maxSeats`, `trainerName`, `courseCodes`, `courseNames`) are consistently present across the entire application.
+================================================================================

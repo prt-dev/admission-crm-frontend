@@ -5,6 +5,7 @@ import { Batch } from "./batch";
 export type StudentTabType =
   | "overview"
   | "syllabus"
+  | "attendance"
   | "schedule"
   | "fees"
   | "certificates";
@@ -43,6 +44,10 @@ export interface StudentFeeBreakdownProps {
 export interface StudentCertificatesSectionProps {
   admission: Admission;
   course?: Course;
+}
+
+export interface StudentAttendanceSectionProps {
+  admission: Admission;
 }
 
 export interface StudentDashboardViewProps {

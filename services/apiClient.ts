@@ -1,12 +1,7 @@
 import { APP_CONFIG } from "@/config/appConfig";
+import { ApiResponse, HttpMethod, RequestOptions } from "@/types/api";
 
-export interface ApiResponse<T = any> {
-  success: boolean;
-  message?: string;
-  data: T;
-  meta?: any;
-  errors?: Record<string, string[]>;
-}
+export type { ApiResponse, HttpMethod, RequestOptions };
 
 export class ApiClient {
   private baseUrl: string;
@@ -15,24 +10,25 @@ export class ApiClient {
     this.baseUrl = baseUrl.replace(/\/+$/, "");
   }
 
-  private getAuthHeaders(): Record<string, string> {
-    const headers: Record<string, string> = {
+  private getDefaultHeaders(): Record<string, string> {
+    return {
       "Content-Type": "application/json",
       Accept: "application/json",
     };
-
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("nleta_auth_token");
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
-    }
-
-    return headers;
   }
 
-  public async get<T = any>(endpoint: string, params?: Record<string, string | number | boolean>): Promise<ApiResponse<T>> {
+  /**
+   * Unified request dispatcher eliminating duplicate fetch logic.
+   * Uses method as argument and automatically supports HttpOnly cookie sessions.
+   */
+  public async request<T = any>(
+    method: HttpMethod,
+    endpoint: string,
+    options: RequestOptions = {}
+  ): Promise<ApiResponse<T>> {
+    const { params, data, headers } = options;
     let url = `${this.baseUrl}/${endpoint.replace(/^\/+/, "")}`;
+
     if (params) {
       const query = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
@@ -47,43 +43,47 @@ export class ApiClient {
     }
 
     const res = await fetch(url, {
-      method: "GET",
-      headers: this.getAuthHeaders(),
+      method,
+      headers: {
+        ...this.getDefaultHeaders(),
+        ...headers,
+      },
+      credentials: "include",
+      body:
+        data !== undefined
+          ? data instanceof FormData
+            ? data
+            : JSON.stringify(data)
+          : undefined,
     });
 
     return this.handleResponse<T>(res);
+  }
+
+  public async get<T = any>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean | undefined | null>
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>("GET", endpoint, { params });
   }
 
   public async post<T = any>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
-    const url = `${this.baseUrl}/${endpoint.replace(/^\/+/, "")}`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: this.getAuthHeaders(),
-      body: data ? JSON.stringify(data) : undefined,
-    });
-
-    return this.handleResponse<T>(res);
+    return this.request<T>("POST", endpoint, { data });
   }
 
   public async put<T = any>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
-    const url = `${this.baseUrl}/${endpoint.replace(/^\/+/, "")}`;
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: this.getAuthHeaders(),
-      body: data ? JSON.stringify(data) : undefined,
-    });
-
-    return this.handleResponse<T>(res);
+    return this.request<T>("PUT", endpoint, { data });
   }
 
-  public async delete<T = any>(endpoint: string): Promise<ApiResponse<T>> {
-    const url = `${this.baseUrl}/${endpoint.replace(/^\/+/, "")}`;
-    const res = await fetch(url, {
-      method: "DELETE",
-      headers: this.getAuthHeaders(),
-    });
+  public async patch<T = any>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>("PATCH", endpoint, { data });
+  }
 
-    return this.handleResponse<T>(res);
+  public async delete<T = any>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean | undefined | null>
+  ): Promise<ApiResponse<T>> {
+    return this.request<T>("DELETE", endpoint, { params });
   }
 
   private async handleResponse<T>(res: Response): Promise<ApiResponse<T>> {
@@ -95,7 +95,8 @@ export class ApiClient {
     }
 
     if (!res.ok) {
-      const errorMsg = responseData?.message || `Request failed with status ${res.status}`;
+      const errorMsg =
+        responseData?.message || `Request failed with status ${res.status}`;
       return {
         success: false,
         message: errorMsg,

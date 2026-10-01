@@ -28,7 +28,7 @@ export default function BatchForm({
   const [courses, setCourses] = useState<Course[]>([]);
   const [batchCode, setBatchCode] = useState("");
   const [batchName, setBatchName] = useState("");
-  const [courseCode, setCourseCode] = useState("");
+  const [courseCodes, setCourseCodes] = useState<string[]>([]);
   const [trainerName, setTrainerName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -44,45 +44,62 @@ export default function BatchForm({
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   useEffect(() => {
-    const availableCourses = courseService.getCourses();
-    setCourses(availableCourses);
+    let isMounted = true;
+    courseService.getCourses().then((availableCourses) => {
+      if (!isMounted) return;
+      setCourses(availableCourses);
 
-    if (batchToEdit) {
-      setBatchCode(batchToEdit.batchCode);
-      setBatchName(batchToEdit.batchName);
-      setCourseCode(batchToEdit.courseCode);
-      setTrainerName(batchToEdit.trainerName);
-      setStartDate(batchToEdit.startDate);
-      setEndDate(batchToEdit.endDate);
-      setScheduleTiming(batchToEdit.scheduleTiming);
-      setMode(batchToEdit.mode);
-      setMaxSeats(batchToEdit.maxSeats);
-      setEnrolledSeats(batchToEdit.enrolledSeats || 0);
-      setClassroomLocation(batchToEdit.classroomLocation || "");
-      setStatus(batchToEdit.status);
-    } else {
-      const initCourse = defaultCourseCode || availableCourses[0]?.courseCode || "";
-      const generatedCode = initCourse ? batchService.generateNextBatchCode(initCourse) : "";
+      if (batchToEdit) {
+        setBatchCode(batchToEdit.code || batchToEdit.batchCode || "");
+        setBatchName(batchToEdit.name || batchToEdit.batchName || "");
+        const codes =
+          batchToEdit.courseCodes && batchToEdit.courseCodes.length > 0
+            ? batchToEdit.courseCodes
+            : batchToEdit.courseCode
+            ? [batchToEdit.courseCode]
+            : (batchToEdit.courses?.map((c) => c.code) || []);
+        setCourseCodes(codes);
+        setTrainerName(batchToEdit.trainerName || batchToEdit.instructor?.name || "");
+        setStartDate(batchToEdit.start_date || batchToEdit.startDate || "");
+        setEndDate(batchToEdit.end_date || batchToEdit.endDate || "");
+        setScheduleTiming(batchToEdit.timing || batchToEdit.scheduleTiming || "");
+        setMode(batchToEdit.mode || "Offline (Classroom)");
+        setMaxSeats(batchToEdit.capacity !== undefined ? batchToEdit.capacity : (batchToEdit.maxSeats || 30));
+        setEnrolledSeats(batchToEdit.enrolledSeats || 0);
+        setClassroomLocation(batchToEdit.classroomLocation || "");
+        setStatus(batchToEdit.status || "Upcoming");
+      } else {
+        const initCourse =
+          defaultCourseCode || availableCourses[0]?.code || availableCourses[0]?.courseCode || "";
+        const initCodes = initCourse ? [initCourse] : [];
+        const generatedCode = initCourse
+          ? batchService.generateNextBatchCode(initCodes)
+          : "";
 
-      setCourseCode(initCourse);
-      setBatchCode(generatedCode);
-      setBatchName("Cohort 2026 - Morning Session");
-      setTrainerName("");
-      setStartDate(new Date().toISOString().split("T")[0]);
-      setEndDate("");
-      setScheduleTiming("09:30 AM - 12:30 PM (Mon - Fri)");
-      setMode("Offline (Classroom)");
-      setMaxSeats(30);
-      setEnrolledSeats(0);
-      setClassroomLocation("Main Lab 201");
-      setStatus("Upcoming");
-    }
+        setCourseCodes(initCodes);
+        setBatchCode(generatedCode);
+        setBatchName("Cohort 2026 - Multidisciplinary Technical Cohort");
+        setTrainerName("");
+        setStartDate(new Date().toISOString().split("T")[0]);
+        setEndDate("");
+        setScheduleTiming("09:30 AM - 12:30 PM (Mon - Fri)");
+        setMode("Offline (Classroom)");
+        setMaxSeats(30);
+        setEnrolledSeats(0);
+        setClassroomLocation("Main Practical Bay 201");
+        setStatus("Upcoming");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, [batchToEdit, defaultCourseCode]);
 
-  const handleCourseChange = (selected: string) => {
-    setCourseCode(selected);
-    if (!isEdit) {
-      setBatchCode(batchService.generateNextBatchCode(selected));
+  const handleCourseCodesChange = (selectedCodes: string[]) => {
+    setCourseCodes(selectedCodes);
+    if (!isEdit && selectedCodes.length > 0) {
+      setBatchCode(batchService.generateNextBatchCode(selectedCodes));
     }
   };
 
@@ -90,10 +107,13 @@ export default function BatchForm({
     const newErrors: Record<string, string> = {};
     if (!batchCode.trim()) newErrors.batchCode = "Batch code is required";
     if (!batchName.trim()) newErrors.batchName = "Batch title is required";
-    if (!courseCode.trim()) newErrors.courseCode = "Select a course for this batch";
+    if (courseCodes.length === 0)
+      newErrors.courseCode = "Select at least one course for this batch";
     if (!trainerName.trim()) newErrors.trainerName = "Trainer name is required";
-    if (!scheduleTiming.trim()) newErrors.scheduleTiming = "Schedule timing is required";
-    if (!maxSeats || maxSeats <= 0) newErrors.maxSeats = "Max seats must be greater than 0";
+    if (!scheduleTiming.trim())
+      newErrors.scheduleTiming = "Schedule timing is required";
+    if (!maxSeats || maxSeats <= 0)
+      newErrors.maxSeats = "Max seats must be greater than 0";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -108,19 +128,31 @@ export default function BatchForm({
   const handleConfirmedSave = () => {
     setIsSubmitting(true);
     try {
-      const selectedCourse = courses.find((c) => c.courseCode === courseCode);
+      const matchedCourses = courseCodes
+        .map((cCode) => courses.find((c) => (c.code || c.courseCode) === cCode))
+        .filter(Boolean) as Course[];
+      const courseNames = matchedCourses.map((c) => c.name || c.courseName || "").filter(Boolean);
+      const primaryCourse = matchedCourses[0];
 
       if (isEdit && batchToEdit) {
         const updated = batchService.updateBatch(batchToEdit.id, {
+          name: batchName,
+          code: batchCode.toUpperCase().trim(),
           batchCode: batchCode.toUpperCase().trim(),
           batchName,
-          courseCode,
-          courseName: selectedCourse?.courseName || batchToEdit.courseName,
+          courseCodes,
+          courseCode: primaryCourse?.code || primaryCourse?.courseCode || courseCodes[0] || "",
+          courseNames,
+          courseName: primaryCourse?.name || primaryCourse?.courseName || courseNames[0] || "",
           trainerName,
           startDate,
           endDate,
+          start_date: startDate,
+          end_date: endDate,
+          timing: scheduleTiming,
           scheduleTiming,
           mode,
+          capacity: Number(maxSeats),
           maxSeats: Number(maxSeats),
           enrolledSeats: Number(enrolledSeats),
           classroomLocation,
@@ -133,15 +165,23 @@ export default function BatchForm({
         }
       } else {
         const created = batchService.createBatch({
+          name: batchName,
+          code: batchCode.toUpperCase().trim(),
           batchCode: batchCode.toUpperCase().trim(),
           batchName,
-          courseCode,
-          courseName: selectedCourse?.courseName,
+          courseCodes,
+          courseCode: primaryCourse?.code || primaryCourse?.courseCode || courseCodes[0] || "",
+          courseNames,
+          courseName: primaryCourse?.name || primaryCourse?.courseName || courseNames[0] || "",
           trainerName,
           startDate: startDate || new Date().toISOString().split("T")[0],
           endDate,
+          start_date: startDate || new Date().toISOString().split("T")[0],
+          end_date: endDate,
+          timing: scheduleTiming,
           scheduleTiming,
           mode,
+          capacity: Number(maxSeats),
           maxSeats: Number(maxSeats),
           enrolledSeats: 0,
           classroomLocation,
@@ -164,12 +204,12 @@ export default function BatchForm({
         {/* 1. Basic Info */}
         <BatchBasicInfoSection
           courses={courses}
-          courseCode={courseCode}
+          courseCodes={courseCodes}
           batchCode={batchCode}
           batchName={batchName}
           trainerName={trainerName}
           status={status}
-          onCourseChange={handleCourseChange}
+          onCourseCodesChange={handleCourseCodesChange}
           onBatchCodeChange={setBatchCode}
           onBatchNameChange={setBatchName}
           onTrainerNameChange={setTrainerName}
@@ -226,8 +266,8 @@ export default function BatchForm({
         title={isEdit ? "Save Batch Cohort Updates?" : "Confirm New Academic Batch"}
         message={
           isEdit
-            ? `Are you sure you want to update batch "${batchName}" (${batchCode}) with ${maxSeats} max seats?`
-            : `Are you sure you want to schedule new batch "${batchName}" (${batchCode}) under course ${courseCode} led by ${trainerName}?`
+            ? `Are you sure you want to update batch "${batchName}" (${batchCode}) linked with ${courseCodes.length} course(s) and ${maxSeats} max seats?`
+            : `Are you sure you want to schedule new batch "${batchName}" (${batchCode}) with ${courseCodes.length} linked course(s) led by ${trainerName}?`
         }
         confirmLabel={isEdit ? "Yes, Save Changes" : "Yes, Schedule Batch"}
         cancelLabel="Review Schedule"

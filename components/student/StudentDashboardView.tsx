@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Admission } from "@/types/admission";
+import { Course } from "@/types/course";
+import { Batch } from "@/types/batch";
 import { StudentDashboardViewProps, StudentTabType } from "@/types/student";
 import { admissionService } from "@/services/admissionService";
 import { courseService } from "@/services/courseService";
@@ -13,12 +15,15 @@ import StudentSyllabusSection from "./StudentSyllabusSection";
 import StudentScheduleSection from "./StudentScheduleSection";
 import StudentFeeBreakdown from "./StudentFeeBreakdown";
 import StudentCertificatesSection from "./StudentCertificatesSection";
+import StudentAttendanceSection from "./StudentAttendanceSection";
 
 export default function StudentDashboardView({ customAdmission }: StudentDashboardViewProps) {
   const { user } = useAuth();
   const [admissions, setAdmissions] = useState<Admission[]>([]);
   const [selectedAdmissionId, setSelectedAdmissionId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<StudentTabType>("overview");
+  const [course, setCourse] = useState<Course | undefined>(undefined);
+  const [batch, setBatch] = useState<Batch | undefined>(undefined);
 
   useEffect(() => {
     const list = admissionService.getAdmissions();
@@ -40,8 +45,16 @@ export default function StudentDashboardView({ customAdmission }: StudentDashboa
     customAdmission ||
     admissions[0];
 
-  const course = currentAdmission ? courseService.getCourseByCode(currentAdmission.courseCode) : undefined;
-  const batch = currentAdmission ? batchService.getBatchByCode(currentAdmission.batchCode) : undefined;
+  useEffect(() => {
+    if (currentAdmission) {
+      if (currentAdmission.courseCode) {
+        courseService.getCourseByCode(currentAdmission.courseCode).then(setCourse);
+      }
+      if (currentAdmission.batchCode) {
+        batchService.getBatchByCode(currentAdmission.batchCode).then(setBatch);
+      }
+    }
+  }, [currentAdmission]);
 
   if (!currentAdmission) {
     return (
@@ -123,6 +136,17 @@ export default function StudentDashboardView({ customAdmission }: StudentDashboa
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab("attendance")}
+          className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer ${
+            activeTab === "attendance"
+              ? "border-brand-500 text-brand-600 dark:text-brand-400"
+              : "border-transparent text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+          }`}
+        >
+          ⏱️ Attendance & Hours (T/P/O)
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab("schedule")}
           className={`pb-3 px-3 text-xs font-bold transition-all border-b-2 whitespace-nowrap cursor-pointer ${
             activeTab === "schedule"
@@ -171,6 +195,9 @@ export default function StudentDashboardView({ customAdmission }: StudentDashboa
       )}
 
       {activeTab === "syllabus" && <StudentSyllabusSection course={course} />}
+      {activeTab === "attendance" && (
+        <StudentAttendanceSection admission={currentAdmission} />
+      )}
       {activeTab === "schedule" && <StudentScheduleSection batch={batch} />}
       {activeTab === "fees" && <StudentFeeBreakdown admission={currentAdmission} />}
       {activeTab === "certificates" && (

@@ -23,13 +23,14 @@ export default function CourseForm({
 
   const [courseCode, setCourseCode] = useState("");
   const [courseName, setCourseName] = useState("");
-  const [category, setCategory] = useState<CourseCategory>("IT & Software");
+  const [category, setCategory] = useState<CourseCategory>("SAFETY TRAINING");
   const [duration, setDuration] = useState("");
   const [totalFee, setTotalFee] = useState<number>(45000);
   const [eligibility, setEligibility] = useState("");
   const [skillIndiaSector, setSkillIndiaSector] = useState("");
   const [skillIndiaQpCode, setSkillIndiaQpCode] = useState("");
   const [status, setStatus] = useState<CourseStatus>("Active");
+  const [classroomLocation, setClassroomLocation] = useState("");
   const [description, setDescription] = useState("");
   const [syllabusInput, setSyllabusInput] = useState("");
 
@@ -39,27 +40,29 @@ export default function CourseForm({
 
   useEffect(() => {
     if (courseToEdit) {
-      setCourseCode(courseToEdit.courseCode);
-      setCourseName(courseToEdit.courseName);
-      setCategory(courseToEdit.category);
-      setDuration(courseToEdit.duration);
-      setTotalFee(courseToEdit.totalFee);
-      setEligibility(courseToEdit.eligibility);
+      setCourseCode(courseToEdit.code || courseToEdit.courseCode || "");
+      setCourseName(courseToEdit.name || courseToEdit.courseName || "");
+      setCategory(courseToEdit.category || "SAFETY TRAINING");
+      setDuration(courseToEdit.duration || "6 Months (360 Hours)");
+      setTotalFee(courseToEdit.fee !== undefined ? Number(courseToEdit.fee) : (courseToEdit.totalFee || 0));
+      setEligibility(courseToEdit.eligibility || "");
       setSkillIndiaSector(courseToEdit.skillIndiaSector || "");
       setSkillIndiaQpCode(courseToEdit.skillIndiaQpCode || "");
-      setStatus(courseToEdit.status);
+      setStatus(courseToEdit.status || "Active");
+      setClassroomLocation(courseToEdit.classroomLocation || "");
       setDescription(courseToEdit.description || "");
       setSyllabusInput((courseToEdit.syllabusHighlights || []).join("\n"));
     } else {
       setCourseCode("CRS-NEW-" + Math.floor(100 + Math.random() * 900));
       setCourseName("");
-      setCategory("IT & Software");
+      setCategory("SAFETY TRAINING");
       setDuration("6 Months (360 Hours)");
       setTotalFee(45000);
       setEligibility("12th Pass / Graduate");
-      setSkillIndiaSector("IT-ITeS Sector Skill Council");
-      setSkillIndiaQpCode("SSC/Q0501");
+      setSkillIndiaSector("Capital Goods & Electrical Systems Skill Council");
+      setSkillIndiaQpCode("SSC/Q1401");
       setStatus("Active");
+      setClassroomLocation("Main Mechanical Bay 1 / Virtual Link");
       setDescription("");
       setSyllabusInput("");
     }
@@ -101,6 +104,7 @@ export default function CourseForm({
           skillIndiaSector,
           skillIndiaQpCode,
           status,
+          classroomLocation,
           description,
           syllabusHighlights,
         });
@@ -117,9 +121,10 @@ export default function CourseForm({
           duration,
           totalFee: Number(totalFee),
           eligibility: eligibility || "12th Pass / Graduate",
-          skillIndiaSector: skillIndiaSector || "National Skill Development Corporation (NSDC)",
+          skillIndiaSector: skillIndiaSector || "Capital Goods & Electrical Systems Skill Council",
           skillIndiaQpCode,
           status,
+          classroomLocation,
           description,
           syllabusHighlights,
         });
@@ -145,12 +150,14 @@ export default function CourseForm({
           duration={duration}
           totalFee={totalFee}
           status={status}
+          classroomLocation={classroomLocation}
           onCourseCodeChange={setCourseCode}
           onCourseNameChange={setCourseName}
           onCategoryChange={setCategory}
           onDurationChange={setDuration}
           onTotalFeeChange={setTotalFee}
           onStatusChange={setStatus}
+          onClassroomLocationChange={setClassroomLocation}
           errors={errors}
         />
 

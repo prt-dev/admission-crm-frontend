@@ -5,3 +5,6 @@ export * from "./batch";
 export * from "./admission";
 export * from "./lead";
 export * from "./student";
+export * from "./attendance";
+export * from "./session";
+export * from "./api";

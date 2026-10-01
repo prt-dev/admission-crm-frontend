@@ -27,9 +27,13 @@ export default function AcademicAllocationSection({
     (c) => c.courseCode.toLowerCase() === courseCode.toLowerCase()
   );
 
-  const filteredBatches = batches.filter(
-    (b) => b.courseCode.toLowerCase() === courseCode.toLowerCase()
-  );
+  const cleanTargetCode = courseCode.toLowerCase();
+  const filteredBatches = batches.filter((b) => {
+    if (b.courseCodes && b.courseCodes.some((c) => c.toLowerCase() === cleanTargetCode)) {
+      return true;
+    }
+    return b.courseCode && b.courseCode.toLowerCase() === cleanTargetCode;
+  });
 
   const selectedBatch = batches.find(
     (b) => b.batchCode.toLowerCase() === batchCode.toLowerCase()
@@ -83,6 +87,11 @@ export default function AcademicAllocationSection({
               <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
                 Duration: {selectedCourse.duration} • Fee: ₹{selectedCourse.totalFee.toLocaleString()}
               </p>
+              {selectedCourse.classroomLocation && (
+                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
+                  📍 Venue: {selectedCourse.classroomLocation}
+                </p>
+              )}
             </div>
           )}
         </div>

@@ -4,13 +4,12 @@ import React from "react";
 import { CourseCategory, CourseStatus } from "@/types/course";
 
 const CATEGORIES: CourseCategory[] = [
-  "IT & Software",
-  "Data Science & AI",
-  "Digital Marketing",
-  "Design & Multimedia",
-  "Electronics & Hardware",
-  "Healthcare",
-  "Vocational & Skills",
+  "OVERVIEW OF NLETA SKILL INDIA MISSION",
+  "OVERVIEW OF ELEVATOR INDUSTRY",
+  "SAFETY TRAINING",
+  "OVERVIEW OF PREVAILING CODES AND STANDARDS",
+  "TRAINING FOR NEW INSTALLATIONS (NI)",
+  "TRAINING FOR EXISTING INSTALLATIONS (EI)",
 ];
 
 interface CourseBasicInfoSectionProps {
@@ -20,12 +19,14 @@ interface CourseBasicInfoSectionProps {
   duration: string;
   totalFee: number;
   status: CourseStatus;
+  classroomLocation: string;
   onCourseCodeChange: (val: string) => void;
   onCourseNameChange: (val: string) => void;
   onCategoryChange: (val: CourseCategory) => void;
   onDurationChange: (val: string) => void;
   onTotalFeeChange: (val: number) => void;
   onStatusChange: (val: CourseStatus) => void;
+  onClassroomLocationChange: (val: string) => void;
   errors?: Record<string, string>;
 }
 
@@ -36,12 +37,14 @@ export default function CourseBasicInfoSection({
   duration,
   totalFee,
   status,
+  classroomLocation,
   onCourseCodeChange,
   onCourseNameChange,
   onCategoryChange,
   onDurationChange,
   onTotalFeeChange,
   onStatusChange,
+  onClassroomLocationChange,
   errors = {},
 }: CourseBasicInfoSectionProps) {
   return (
@@ -52,10 +55,10 @@ export default function CourseBasicInfoSection({
         </span>
         <div>
           <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-            Course Basic Information
+            Course Basic Information & Training Venue
           </h3>
           <p className="text-[11px] text-gray-500 dark:text-gray-400">
-            Course code, official program title, duration, pricing, and category.
+            Course code, official program title, duration, pricing, category, and assigned lab/classroom/virtual link.
           </p>
         </div>
       </div>
@@ -116,6 +119,31 @@ export default function CourseBasicInfoSection({
         {errors.courseName && (
           <p className="text-[11px] text-rose-500 mt-1">{errors.courseName}</p>
         )}
+      </div>
+
+      {/* Classroom / Lab Location / Virtual Room Link */}
+      <div>
+        <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+          Classroom / Lab Location / Virtual Room Link
+        </label>
+        <div className="relative">
+          <input
+            type="text"
+            value={classroomLocation}
+            onChange={(e) => onClassroomLocationChange(e.target.value)}
+            placeholder="e.g. Mechanical Shaft Bay 1 & Rigging Lab 302 or https://meet.google.com/xyz-abc"
+            className="w-full rounded-xl border border-gray-200 dark:border-gray-700 pl-9 pr-3.5 py-2.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 font-sans"
+          />
+          <span className="absolute left-3 top-2.5 text-gray-400">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </span>
+        </div>
+        <p className="text-[10px] text-gray-400 mt-1">
+          Specify campus room / lab facility or online meeting URL used for lectures and practical assessments.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

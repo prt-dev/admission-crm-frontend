@@ -16,14 +16,16 @@ export default function EditBatchPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      const batches = batchService.getBatches();
-      const found = batches.find((b) => b.id === id || b.batchCode === id);
-      if (found) {
-        setBatch(found);
+    const fetchBatch = async () => {
+      if (id) {
+        const found = await batchService.getBatchById(id);
+        if (found) {
+          setBatch(found);
+        }
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }
+    };
+    fetchBatch();
   }, [id]);
 
   if (isLoading) {

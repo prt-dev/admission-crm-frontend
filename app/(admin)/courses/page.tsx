@@ -9,6 +9,7 @@ import { courseService } from "@/services/courseService";
 import { batchService } from "@/services/batchService";
 import CourseDetailModal from "@/components/courses/CourseDetailModal";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import LogoSpinner from "@/components/loader/LogoSpinner";
 
 export default function CoursesPage() {
   const router = useRouter();
@@ -26,9 +27,19 @@ export default function CoursesPage() {
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const loadData = () => {
-    setCourses(courseService.getCourses());
-    setBatches(batchService.getBatches());
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const loadData = async () => {
+    try {
+      const [allCourses, allBatches] = await Promise.all([
+        courseService.getCourses(),
+        batchService.getBatches(),
+      ]);
+      setCourses(allCourses);
+      setBatches(allBatches);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -107,17 +118,28 @@ export default function CoursesPage() {
     },
     {
       key: "courseName",
-      header: "Course Title & Category",
+      header: "Course Title & Location",
       sortable: true,
       render: (row) => (
-        <div className="flex flex-col">
+        <div className="flex flex-col min-w-0 max-w-[280px]">
           <span
             onClick={() => handleViewDetail(row)}
-            className="font-semibold text-xs text-gray-900 dark:text-white hover:text-brand-600 cursor-pointer"
+            className="font-semibold text-xs text-gray-900 dark:text-white hover:text-brand-600 cursor-pointer truncate"
           >
             {row.courseName}
           </span>
-          <span className="text-[10px] text-gray-400">{row.category}</span>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[10px] text-gray-400 truncate">{row.category}</span>
+          </div>
+          {row.classroomLocation && (
+            <div className="flex items-center gap-1 mt-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
+              <svg className="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span className="truncate">{row.classroomLocation}</span>
+            </div>
+          )}
         </div>
       ),
     },
@@ -143,7 +165,12 @@ export default function CoursesPage() {
       key: "batches",
       header: "Active Batches",
       render: (row) => {
-        const active = batches.filter((b) => b.courseCode === row.courseCode);
+        const targetCode = row.courseCode.toLowerCase();
+        const active = batches.filter(
+          (b) =>
+            (b.courseCodes && b.courseCodes.some((c) => c.toLowerCase() === targetCode)) ||
+            (b.courseCode && b.courseCode.toLowerCase() === targetCode)
+        );
         return (
           <span className="text-xs font-medium text-brand-600 dark:text-brand-400">
             {active.length} Batches
@@ -340,11 +367,21 @@ export default function CoursesPage() {
       </div>
 
       {/* Grid or Table Display */}
-      {viewMode === "grid" ? (
+      {isLoading ? (
+        <div className="rounded-2xl border border-gray-200/80 bg-white p-14 text-center shadow-xs dark:border-gray-800 dark:bg-gray-900">
+          <LogoSpinner
+            size="md"
+            label="Loading Courses Catalog..."
+            sublabel="Fetching course modules and curriculum data"
+          />
+        </div>
+      ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredCourses.map((course) => {
             const courseBatches = batches.filter(
-              (b) => b.courseCode.toLowerCase() === course.courseCode.toLowerCase()
+              (b) =>
+                (b.courseCode && b.courseCode.toLowerCase() === course.courseCode.toLowerCase()) ||
+                (b.courseCodes && b.courseCodes.some((code) => code.toLowerCase() === course.courseCode.toLowerCase()))
             );
             const totalEnrolled = courseBatches.reduce((sum, b) => sum + (b.enrolledSeats || 0), 0);
 
@@ -447,6 +484,7 @@ export default function CoursesPage() {
           subtitle={`Total ${filteredCourses.length} courses registered`}
           data={filteredCourses}
           columns={columns}
+          isLoading={isLoading}
           searchable
           searchPlaceholder="Search courses by title, code, sector..."
           pagination={{

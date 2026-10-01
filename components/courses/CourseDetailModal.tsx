@@ -26,9 +26,13 @@ export default function CourseDetailModal({
 }: CourseDetailModalProps) {
   if (!isOpen || !course) return null;
 
-  const courseBatches = batches.filter(
-    (b) => b.courseCode.toLowerCase() === course.courseCode.toLowerCase()
-  );
+  const targetCode = course.courseCode.toLowerCase();
+  const courseBatches = batches.filter((b) => {
+    if (b.courseCodes && b.courseCodes.some((c) => c.toLowerCase() === targetCode)) {
+      return true;
+    }
+    return b.courseCode && b.courseCode.toLowerCase() === targetCode;
+  });
   const totalEnrolled = courseBatches.reduce((acc, b) => acc + (b.enrolledSeats || 0), 0);
 
   return (
@@ -94,6 +98,37 @@ export default function CourseDetailModal({
               </p>
             </div>
           </div>
+
+          {/* Training Venue / Lab / Virtual Room */}
+          {course.classroomLocation && (
+            <div className="flex items-center gap-3 p-3.5 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 text-xs">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase font-bold tracking-wider text-emerald-700 dark:text-emerald-300">
+                  Classroom / Lab Location / Virtual Room Link
+                </p>
+                {course.classroomLocation.startsWith("http") ? (
+                  <a
+                    href={course.classroomLocation}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-emerald-700 dark:text-emerald-300 hover:underline truncate block"
+                  >
+                    {course.classroomLocation} ↗
+                  </a>
+                ) : (
+                  <p className="font-semibold text-gray-900 dark:text-white mt-0.5 truncate">
+                    {course.classroomLocation}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           <div>

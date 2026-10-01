@@ -33,10 +33,14 @@ export default function AdmissionsPage() {
   const [deletingAdmission, setDeletingAdmission] = useState<Admission | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const loadData = () => {
+  const loadData = async () => {
+    const [allCourses, allBatches] = await Promise.all([
+      courseService.getCourses(),
+      batchService.getBatches(),
+    ]);
     setAdmissions(admissionService.getAdmissions());
-    setCourses(courseService.getCourses());
-    setBatches(batchService.getBatches());
+    setCourses(allCourses);
+    setBatches(allBatches);
     setStats(admissionService.getStats());
   };
 

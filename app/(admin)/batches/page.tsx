@@ -32,9 +32,19 @@ export default function BatchesPage() {
   const [selectedAdmission, setSelectedAdmission] = useState<Admission | null>(null);
   const [isAdmissionDrawerOpen, setIsAdmissionDrawerOpen] = useState(false);
 
-  const loadData = () => {
-    setBatches(batchService.getBatches());
-    setCourses(courseService.getCourses());
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const loadData = async () => {
+    try {
+      const [allBatches, allCourses] = await Promise.all([
+        batchService.getBatches(),
+        courseService.getCourses(),
+      ]);
+      setBatches(allBatches);
+      setCourses(allCourses);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -51,7 +61,12 @@ export default function BatchesPage() {
 
   const filteredBatches = useMemo(() => {
     return batches.filter((b) => {
-      if (selectedCourse !== "all" && b.courseCode !== selectedCourse) return false;
+      if (selectedCourse !== "all") {
+        const matchesCourse =
+          b.courseCodes?.includes(selectedCourse) ||
+          b.courseCode === selectedCourse;
+        if (!matchesCourse) return false;
+      }
       if (selectedMode !== "all" && b.mode !== selectedMode) return false;
       if (selectedStatus !== "all" && b.status !== selectedStatus) return false;
       return true;
@@ -120,21 +135,53 @@ export default function BatchesPage() {
     },
     {
       key: "batchName",
-      header: "Batch Name & Course",
+      header: "Batch Name & Courses",
       sortable: true,
-      render: (row) => (
-        <div className="flex flex-col min-w-0">
-          <span
-            onClick={() => handleViewDetail(row)}
-            className="font-semibold text-xs text-gray-900 dark:text-white hover:text-brand-600 cursor-pointer truncate max-w-[200px]"
-          >
-            {row.batchName}
-          </span>
-          <span className="text-[10px] text-gray-400 font-mono">
-            {row.courseCode} • {row.courseName}
-          </span>
-        </div>
-      ),
+      render: (row) => {
+        const codes =
+          row.courseCodes && row.courseCodes.length > 0
+            ? row.courseCodes
+            : row.courseCode
+            ? [row.courseCode]
+            : [];
+        return (
+          <div className="flex flex-col min-w-0 max-w-[260px]">
+            <span
+              onClick={() => handleViewDetail(row)}
+              className="font-semibold text-xs text-gray-900 dark:text-white hover:text-brand-600 cursor-pointer truncate"
+              title={row.batchName}
+            >
+              {row.batchName}
+            </span>
+            <div className="flex flex-wrap items-center gap-1 mt-1">
+              {codes.slice(0, 2).map((code) => (
+                <span
+                  key={code}
+                  className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-mono font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
+                >
+                  {code}
+                </span>
+              ))}
+              {codes.length > 2 && (
+                <span className="text-[10px] font-medium text-brand-600 dark:text-brand-400">
+                  +{codes.length - 2} more
+                </span>
+              )}
+            </div>
+            {row.courseNames && row.courseNames.length > 0 ? (
+              <span className="text-[10px] text-gray-400 truncate mt-0.5">
+                {row.courseNames.join(" • ")}
+              </span>
+            ) : (
+              row.courseName && (
+                <span className="text-[10px] text-gray-400 truncate mt-0.5">
+                  {row.courseName}
+                </span>
+              )
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "trainerName",
@@ -390,6 +437,7 @@ export default function BatchesPage() {
         subtitle={`Showing ${filteredBatches.length} batch cohorts in directory`}
         data={filteredBatches}
         columns={columns}
+        isLoading={isLoading}
         searchable
         searchPlaceholder="Search batches by code, trainer, timing..."
         pagination={{

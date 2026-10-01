@@ -3,6 +3,9 @@
 import React from "react";
 import { Batch } from "@/types/batch";
 import { Admission } from "@/types/admission";
+import { courseService } from "@/services/courseService";
+import { courseCache } from "@/services/courseCache";
+import { initialCourses } from "@/data/courseData";
 import { admissionService } from "@/services/admissionService";
 import Button from "@/components/ui/Button";
 
@@ -35,6 +38,22 @@ export default function BatchDetailModal({
     Math.round(((batch.enrolledSeats || enrolledStudents.length) / batch.maxSeats) * 100)
   );
 
+  const courseCodes =
+    batch.courseCodes && batch.courseCodes.length > 0
+      ? batch.courseCodes
+      : batch.courseCode
+      ? [batch.courseCode]
+      : [];
+
+  const allCourses = courseCache.getValidCache() || initialCourses;
+  const associatedCourses = courseCodes
+    .map((code) =>
+      allCourses.find(
+        (c) => (c.code || c.courseCode).toLowerCase() === code.toLowerCase()
+      )
+    )
+    .filter(Boolean);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in" onClick={onClose} />
@@ -63,7 +82,7 @@ export default function BatchDetailModal({
               {batch.batchName}
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              {batch.courseCode} • {batch.courseName}
+              {courseCodes.length} Associated Course{courseCodes.length > 1 ? "s" : ""}
             </p>
           </div>
 
@@ -95,6 +114,40 @@ export default function BatchDetailModal({
                 }`}
                 style={{ width: `${percentOccupancy}%` }}
               />
+            </div>
+          </div>
+
+          {/* Associated Courses List */}
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">
+              Delivered Courses ({courseCodes.length})
+            </h4>
+            <div className="space-y-2">
+              {associatedCourses.map((c) => (
+                <div
+                  key={c!.id}
+                  className="flex items-center justify-between p-3 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 text-xs"
+                >
+                  <div className="min-w-0 pr-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-[11px] text-brand-600 dark:text-brand-400 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-700">
+                        {c!.courseCode}
+                      </span>
+                      <span className="font-semibold text-gray-900 dark:text-white truncate">
+                        {c!.courseName}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">
+                      Duration: {c!.duration} • Category: {c!.category || "Standard"}
+                    </p>
+                  </div>
+                  <div className="text-right whitespace-nowrap">
+                    <span className="font-semibold text-gray-900 dark:text-white text-xs">
+                      ₹{c!.totalFee.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

@@ -1,0 +1,45 @@
+================================================================================
+ADMISSION CRM - PROMPT & RESPONSE LOG (PART 2)
+================================================================================
+Note: Prompts #1 through #53 are recorded in `prompts.txt`.
+All new prompts and response summaries from Prompt #54 onwards are logged and updated in this file (`prompts2.txt`).
+
+--------------------------------------------------------------------------------
+[PROMPT #54]
+create a new prompt file and update it from now after 
+
+update the keys, forms, services, components, etc of academicsesssion module according to C:\xampp\htdocs\prateek-work\admission-crm\database\migrations\2026_10_01_000011_create_academic_sessions_table.php migration keys
+
+[RESPONSE #54]
+1. Created new tracking file `prompts2.txt` to log all subsequent prompts and responses.
+2. Analyzed Laravel migration `2026_10_01_000011_create_academic_sessions_table.php` schema:
+   - `id`: unsignedBigInteger
+   - `name`: string (e.g. "2025-2026", "2026-2027", "Session 2026")
+   - `code`: string unique (e.g. "SESS-2025-26", "SESS-2026-27")
+   - `start_date`: date (YYYY-MM-DD)
+   - `end_date`: date (YYYY-MM-DD)
+   - `is_current`: boolean (default: false, indexed)
+   - `status`: unsignedTinyInteger (1=Upcoming, 2=Active/Ongoing, 3=Completed, 4=Archived/Inactive, indexed)
+   - `description`: text nullable
+   - `created_by`: unsignedBigInteger nullable (indexed)
+   - `created_at` / `updated_at`: timestamps
+3. Updated Type System (`types/session.ts`):
+   - Defined `AcademicSession` with exact migration keys: `id`, `name`, `code`, `start_date`, `end_date`, `is_current`, `status`, `description`, `created_by`, `created_at`, `updated_at`.
+   - Defined `AcademicSessionStatus` as numeric type `1 | 2 | 3 | 4` and constant mapping `ACADEMIC_SESSION_STATUS` (`UPCOMING: 1`, `ACTIVE: 2`, `COMPLETED: 3`, `ARCHIVED: 4`) with `ACADEMIC_SESSION_STATUS_LABELS`.
+   - Added backward-compatible aliases (`sessionName`, `sessionCode`, `startDate`, `endDate`, `isCurrent`).
+4. Updated Seed Data (`data/sessionData.ts`):
+   - Aligned records to use `name`, `code`, `start_date`, `end_date`, `is_current`, `status` (1, 2, 3), `created_by`, and timestamps.
+   - Updated `calculateAcademicSessionMetrics` to calculate stats using `is_current`, `status === 1`, and active session codes.
+5. Updated Reactive Service Layer (`services/sessionService.ts`):
+   - Bumped storage cache to `crm_academic_sessions_v3`.
+   - Updated search/filter queries to match on `name`, `code`, `description`, and numeric `status`.
+   - Refactored `createSession()`, `updateSession()`, `setAsCurrentSession()`, and `deleteSession()` with full migration key support and single-active session enforcement.
+   - Updated async REST API client endpoints (`getAll`, `getById`, `create`, `update`, `patch`, `delete`, `setCurrent`).
+6. Updated Form & Components (`components/sessions/` & `app/(admin)/sessions/`):
+   - `AcademicSessionModal.tsx`: Inputs for `name`, `code`, `start_date`, `end_date`, numeric `status` select (1, 2, 3, 4), `is_current` checkbox, and `description`.
+   - `AcademicSessionTable.tsx`: Displays session `code`, `name`, `start_date` → `end_date`, running batches, status badge, and action triggers.
+   - `AcademicSessionDetailModal.tsx`: Shows session details and cohort batches running under the session code.
+   - `AcademicSessionFilterBar.tsx`: Supports search and numeric status filters.
+   - `AcademicSessionStatsCards.tsx`: Displays active cycle and institutional aggregate KPIs.
+   - `app/(admin)/sessions/page.tsx`: Seamlessly integrates CRUD flows with the updated schema.
+================================================================================
